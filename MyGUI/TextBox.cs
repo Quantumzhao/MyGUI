@@ -2,7 +2,8 @@
 
 namespace MyGUI
 {
-	public class Class1
+	public class TextBox
 	{
+
 	}
 }
