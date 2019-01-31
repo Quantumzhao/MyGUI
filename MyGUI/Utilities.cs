@@ -68,7 +68,7 @@ namespace MyGUI.Utilities
 
 	public interface IFocusable
 	{
-		Focus IsFocused { get; set; }
+		Focus FocusStatus { get; set; }
 	}
 
 	public enum Focus
@@ -78,9 +78,16 @@ namespace MyGUI.Utilities
 		NoFocus
 	}
 
-	public class AbstractCollection<T> where T : INameable
+	public class EntityCollection<T> where T : IEntity
 	{
+		public EntityCollection(CustomFunctionBuilder more_AddElement_Behavior = null)
+		{
+			customFunction = more_AddElement_Behavior;
+		}
+
 		protected List<T> collection = new List<T>();
+
+		private CustomFunctionBuilder customFunction;
 
 		public T this[int index]
 		{
@@ -130,16 +137,39 @@ namespace MyGUI.Utilities
 
 		public int Count => collection.Count;
 
-		public void Add(T element, string name = "", CustomFunctionBuilder customFunction = null)
+		public void Add(T element, string name = "")
 		{
 			element.Name = name == "" ? $"{element.GetType().ToString()}{collection.Count}" : name;
 			collection.Add(element);
 
 			customFunction?.Invoke();
 		}
+
+		public T GetFocusing()
+		{
+			return collection.Where(t => t.FocusStatus == Focus.Focusing).Single();
+		}
+		public void SetFocusing(int index)
+		{
+			for (int i = 0; i < collection.Count; i++)
+			{
+				if (i == index)
+				{
+					collection[i].FocusStatus = Focus.Focusing;
+				}
+				else
+				{
+					collection[i].FocusStatus = Focus.NoFocus;
+				}
+			}
+		}
+		public void SetFocusing()
+		{
+			GetFocusing().FocusStatus = Focus.Focused;
+		}
 	}
 
-	public abstract class Component
+	public abstract class Component : IEntity
 	{
 		public Coordinates Anchor { get; set; } = new Coordinates();
 
@@ -171,14 +201,56 @@ namespace MyGUI.Utilities
 				throw new InvalidOperationException();
 			}
 		}
-		public Focus IsFocused { get; set; }
 
-		//private Pixel[,] renderBuffer;
-		public virtual Pixel[,] GetRenderBuffer()
-		{
-			return new Pixel[Width, Height];
-		}
+		//public EntityCollection<Component> internalComponentCollection { get; set; }
+
+		public Focus FocusStatus { get; set; }
+
+		public abstract Pixel[,] GetRenderBuffer();
 
 		public abstract bool ParseAndExecute(ConsoleKeyInfo key);
+	}
+
+	public abstract class Container : IEntity
+	{
+		public Coordinates Anchor { get; set; }
+		public int Width { get; set; }
+		public int Height { get; set; }
+		public string Name { get; set; }
+		public Focus FocusStatus { get; set; }
+
+		Pixel[,] IEntity.GetRenderBuffer()
+		{
+			throw new NotImplementedException();
+		}
+
+		bool IKeyEvent.ParseAndExecute(ConsoleKeyInfo key)
+		{
+			throw new NotImplementedException();
+		}
+
+		private IEntity parent;
+		public T GetParent<T>()
+		{
+			if (parent is T)
+			{
+				return (T)parent;
+			}
+			else
+			{
+				throw new InvalidCastException("Type parameter does not derive from IEntity");
+			}
+		}
+		public void SetParent(IEntity target)
+		{
+			if (parent == null)
+			{
+				parent = target;
+			}
+			else
+			{
+				throw new InvalidOperationException();
+			}
+		}
 	}
 }
