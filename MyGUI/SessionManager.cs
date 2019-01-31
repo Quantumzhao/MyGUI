@@ -7,19 +7,34 @@ namespace MyGUI.Session
 {
 	class Resources
 	{
-
+		public static List<IEntity> ActiveEntities { get; set; } = new List<IEntity>();
 	}
 
 	class Settings
 	{
-
+		public bool IsConventionalCliInterface { get; set; } = false;
 	}
 
 	public class Console
 	{
-		public static void Prompt(Component component)
+		public static void Load(Component component)
 		{
 
+		}
+		public static void Activate(string entityName)
+		{
+
+		}
+
+		public static string Prompt(Component component)
+		{
+			Resources.ActiveEntities.Add(component);
+
+			throw new NotImplementedException();
+		}
+		public static string Prompt()
+		{
+			throw new NotImplementedException();
 		}
 
 		private static void redirectInput(Component component)

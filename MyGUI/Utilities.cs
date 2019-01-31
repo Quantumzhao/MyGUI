@@ -211,20 +211,21 @@ namespace MyGUI.Utilities
 		public abstract bool ParseAndExecute(ConsoleKeyInfo key);
 	}
 
-	public abstract class Container : IEntity
+	public abstract class Container<TItem> : IEntity where TItem : Component
 	{
 		public Coordinates Anchor { get; set; }
 		public int Width { get; set; }
 		public int Height { get; set; }
 		public string Name { get; set; }
 		public Focus FocusStatus { get; set; }
+		public List<TItem> List { get; set; } = new List<TItem>();
 
-		Pixel[,] IEntity.GetRenderBuffer()
+		public Pixel[,] GetRenderBuffer()
 		{
 			throw new NotImplementedException();
 		}
 
-		bool IKeyEvent.ParseAndExecute(ConsoleKeyInfo key)
+		public bool ParseAndExecute(ConsoleKeyInfo key)
 		{
 			throw new NotImplementedException();
 		}

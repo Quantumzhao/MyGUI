@@ -5,19 +5,31 @@ using MyGUI.Utilities;
 
 namespace MyGUI
 {
-	class ComboBox : Container
+	class ComboBox : Container<ListItem>
 	{
+		public ComboBox(params ListItem[] item)
+		{
+
+		}
+
 		public bool IsAcceptTextInput { get; set; }
-		public List<ListItem> List { get; set; } = new List<ListItem>();
 	}
 
-	class ListItem
+	class ListItem : Component
 	{
-		public string Name { get; set; }
+		public override Pixel[,] GetRenderBuffer()
+		{
+			throw new NotImplementedException();
+		}
 
 		public void OnSelect(object sender, EventArgs args)
 		{
 			
+		}
+
+		public override bool ParseAndExecute(ConsoleKeyInfo key)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
