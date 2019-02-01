@@ -1,5 +1,7 @@
 ﻿using System;
 using MyGUI;
+using MyGUIConsole = MyGUI.Session.Console;
+using MyGUI.Utilities;
 using System.Threading;
 
 namespace Example
@@ -8,31 +10,16 @@ namespace Example
 	{
 		static void Main(string[] args)
 		{
-			Thread thread = new Thread(Left);
-			thread.Start();
-			Right();
-
+#if true
+			MyGUIConsole.Prompt(
+				new ListBox(ListBox.DefaultHeight, ListBox.DefaultWidth,
+					new ListBox.ListItem("Name1", "v1"),
+					new ListBox.ListItem("Name2", "v2")
+				)
+			);
+			string input = MyGUIConsole.GetUserInput();
+#endif
 			Console.ReadLine();
-		}
-
-		static void Right()
-		{
-			for (int i = 0; i < 20; i++)
-			{
-				Console.CursorLeft = 10;
-				Console.Write("#");
-				Console.CursorTop++;
-			}
-		}
-
-		static void Left()
-		{
-			for (int i = 0; i < 20; i++)
-			{
-				Console.CursorLeft = 0;
-				Console.Write("@");
-				Console.CursorTop++;
-			}
 		}
 	}
 }

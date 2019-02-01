@@ -5,14 +5,16 @@ using MyGUI.Utilities;
 
 namespace MyGUI
 {
-	public class ComboBox : Container<ListItem>
+	class Button : Component
 	{
-		public override bool ParseAndExecute(ConsoleKeyInfo key)
+		public event Action OnClick;
+
+		public override Pixel[,] GetRenderBuffer()
 		{
 			throw new NotImplementedException();
 		}
 
-		public override Pixel[,] GetRenderBuffer()
+		public override bool ParseAndExecute(ConsoleKeyInfo key)
 		{
 			throw new NotImplementedException();
 		}

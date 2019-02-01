@@ -12,11 +12,12 @@ namespace MyGUI.Session
 
 	class Settings
 	{
-		public bool IsConventionalCliInterface { get; set; } = false;
+		public static bool IsConventionalCliInterface { get; set; } = false;
 	}
 
 	public class Console
 	{
+		// Uncapsulated version of "Prompt"
 		public static void Load(Component component)
 		{
 
@@ -26,13 +27,27 @@ namespace MyGUI.Session
 
 		}
 
-		public static string Prompt(Component component)
+		public static string Prompt(IEntity entity)
 		{
-			Resources.ActiveEntities.Add(component);
+			Resources.ActiveEntities.Add(entity);
+
+			if (Settings.IsConventionalCliInterface)
+			{
+
+			}
 
 			throw new NotImplementedException();
 		}
 		public static string Prompt()
+		{
+			throw new NotImplementedException();
+		}
+
+		public static string GetUserInput()
+		{
+			throw new NotImplementedException();
+		}
+		public T GetUserInput<T>()
 		{
 			throw new NotImplementedException();
 		}
