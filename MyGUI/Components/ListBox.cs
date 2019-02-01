@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MyGUI.Utilities;
 using System.Linq;
+using static MyGUI.Session.Settings.Appearance.ComponentStyle;
 
 namespace MyGUI
 {
@@ -58,6 +59,8 @@ namespace MyGUI
 		public bool IsAcceptTextInput { get; set; }
 		public int CandidateNumber { get; set; } = 4;
 
+
+
 		private int currentItem;
 		public int CurrentItem
 		{
@@ -112,7 +115,23 @@ namespace MyGUI
 		private Pixel[,] renderBuffer;
 		private void initRenderBuffer()
 		{
-
+			renderBuffer = new Pixel[width, height];
+			for (int j = 0; j < height; j++)
+			{
+				for (int i = 0; i < width; i++)
+				{
+					renderBuffer[i, j] = new Pixel() {
+						ForegroundColor = ConsoleColor.White,
+						BackgroundColor = ConsoleColor.Black
+					};
+					if      (j == 0      && i == 0)      renderBuffer[i, j].Character = BorderStyle.UpperLeft ;
+					else if (j == height && i == 0)      renderBuffer[i, j].Character = BorderStyle.LowerLeft ;
+					else if (j == 0      && i == width)  renderBuffer[i, j].Character = BorderStyle.UpperRight;
+					else if (j == height && i == width)  renderBuffer[i, j].Character = BorderStyle.LowerRight;
+					else if (j == 0      || j == height) renderBuffer[i, j].Character = BorderStyle.Horizontal;
+					else if (i == 0      || i == width)  renderBuffer[i, j].Character = BorderStyle.Vertical  ;
+				}
+			}
 		}
 		public override Pixel[,] GetRenderBuffer()
 		{
@@ -144,6 +163,19 @@ namespace MyGUI
 			}
 		}
 		#endregion
+
+		private class ListBoxDisplayArea : DisplayArea
+		{
+			public override Pixel[,] GetRenderBuffer()
+			{
+				throw new NotImplementedException();
+			}
+
+			public override bool ParseAndExecute(ConsoleKeyInfo key)
+			{
+				throw new NotImplementedException();
+			}
+		}
 	}
 
 	/// <summary>

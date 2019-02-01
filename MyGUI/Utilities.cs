@@ -5,7 +5,7 @@ using CustomizedFunction;
 
 namespace MyGUI.Utilities
 {
-	public interface IEntity : IKeyEvent, INameable, IFocusable, IVisible
+	public interface IEntity : IKeyEvent, INameable, IFocusable, IVisible, IDisposable
 	{
 		Coordinates Anchor { get; set; }
 		int Width { get; set; }
@@ -39,4 +39,18 @@ namespace MyGUI.Utilities
 		NoFocus
 	}
 
+	public enum BoarderCharPos
+	{
+		UpperLeft,
+		LowerLeft,
+		UpperRight,
+		LowerRight,
+		Horizontal,
+		Vertical,
+		T,
+		T_UpSideDown,
+		T_AntiClockwise90,
+		T_Clockwise90,
+		Cross
+	}
 }

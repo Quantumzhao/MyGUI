@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomizedFunction;
+using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace MyGUI.Utilities
 {
@@ -9,18 +11,18 @@ namespace MyGUI.Utilities
 	{
 		public Pixel(char displayCharacter, ConsoleColor foreground, ConsoleColor background)
 		{
-			DisplayCharacter = displayCharacter;
+			Character = displayCharacter;
 			ForegroundColor = foreground;
 			BackgroundColor = background;
 		}
 		public Pixel(Pixel anotherPixel)
 		{
-			DisplayCharacter = anotherPixel.DisplayCharacter;
+			Character = anotherPixel.Character;
 			ForegroundColor = anotherPixel.ForegroundColor;
 			BackgroundColor = anotherPixel.BackgroundColor;
 		}
 
-		public char DisplayCharacter { get; set; }
+		public char Character { get; set; }
 
 		public ConsoleColor ForegroundColor { get; set; }
 
@@ -29,7 +31,7 @@ namespace MyGUI.Utilities
 		public bool Equals(Pixel another)
 		{
 			return
-				DisplayCharacter == another.DisplayCharacter &&
+				Character == another.Character &&
 				ForegroundColor == another.ForegroundColor &&
 				BackgroundColor == another.BackgroundColor;
 		}
@@ -188,6 +190,11 @@ namespace MyGUI.Utilities
 		public abstract Pixel[,] GetRenderBuffer();
 
 		public abstract bool ParseAndExecute(ConsoleKeyInfo key);
+
+		public void Dispose()
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 	public abstract class Container<TItem> : IEntity where TItem : INameable, IFocusable, IVisible
@@ -226,5 +233,46 @@ namespace MyGUI.Utilities
 				throw new InvalidOperationException();
 			}
 		}
+
+		public void Dispose()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	class JsonHelper : IDisposable
+	{
+		string filepath;
+		JObject jObject;
+
+		public JsonHelper(string path)
+		{
+			filepath = path;
+			using (StreamReader reader = new StreamReader(filepath))
+			{
+				string json = reader.ReadToEnd();
+				jObject = JObject.Parse(json);
+			}
+		}
+
+		public void Dispose() => File.WriteAllText(filepath, jObject.ToString());
+
+		public JToken GetProperty(string name) => jObject.Property(name).Value;
+
+		public void SetProperty<T>(string name, JToken value) => jObject.Property(name).Value = value;
+
+		public void AddProperty(string name, JToken value) => jObject.Add(name, value);
+
+		public IEnumerable<JProperty> ListProperties() => jObject.Properties();
+
+		public bool Has(string propertyName) => jObject.Properties().Where(p => p.Name == propertyName).Count() != 0;
+	}
+
+	public abstract class DisplayArea : Component
+	{
+		public virtual void MoveUp() { }
+		public virtual void MoveDown() { }
+		public virtual void MoveLeft() { }
+		public virtual void MoveRight() { }
 	}
 }

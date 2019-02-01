@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyGUI", "MyGUI\MyGUI.csproj", "{3ECB8B25-8033-41C4-B7AB-F93F3D9E09F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyGUI", "MyGUI\MyGUI.csproj", "{3ECB8B25-8033-41C4-B7AB-F93F3D9E09F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{713BD173-5F2C-4438-9A5E-7122D65AD6AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTest", "UnitTest\UnitTest.csproj", "{713BD173-5F2C-4438-9A5E-7122D65AD6AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example.cs\Example.csproj", "{7A71BF7C-59F0-4D64-92AB-838E201A5F61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example", "Example.cs\Example.csproj", "{7A71BF7C-59F0-4D64-92AB-838E201A5F61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
