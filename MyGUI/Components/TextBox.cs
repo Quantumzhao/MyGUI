@@ -3,7 +3,7 @@ using MyGUI.Utilities;
 
 namespace MyGUI
 {
-	public class TextBox : Component
+	public class TextBox : PrimitiveComponent
 	{
 		public override Pixel[,] GetRenderBuffer()
 		{
@@ -11,6 +11,11 @@ namespace MyGUI
 		}
 
 		public override bool ParseAndExecute(ConsoleKeyInfo key)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void UpdateRenderBuffer()
 		{
 			throw new NotImplementedException();
 		}

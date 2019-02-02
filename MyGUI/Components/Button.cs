@@ -5,7 +5,7 @@ using MyGUI.Utilities;
 
 namespace MyGUI
 {
-	class Button : Component
+	class Button : PrimitiveComponent
 	{
 		public event Action OnClick;
 
@@ -15,6 +15,11 @@ namespace MyGUI
 		}
 
 		public override bool ParseAndExecute(ConsoleKeyInfo key)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void UpdateRenderBuffer()
 		{
 			throw new NotImplementedException();
 		}

@@ -37,7 +37,26 @@ namespace MyGUI.Utilities
 		}
 	}
 
-	public class Coordinates
+	public struct Chunk
+	{
+		public Chunk(Coordinates anchor, int width, int height)
+		{
+			Anchor = anchor;
+			Width = width;
+			Height = height;
+		}
+
+		public readonly Coordinates Anchor;
+		public readonly int Height;
+		public readonly int Width;
+
+		public static Chunk[] Merge(params Chunk[] chunks)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public struct Coordinates
 	{
 		public Coordinates(int x = 0, int y = 0)
 		{
@@ -150,7 +169,7 @@ namespace MyGUI.Utilities
 		}
 	}
 
-	public abstract class Component : IEntity
+	public abstract class PrimitiveComponent : IEntity
 	{
 		public Coordinates Anchor { get; set; } = new Coordinates();
 
@@ -159,7 +178,9 @@ namespace MyGUI.Utilities
 
 		public string Name { get; set; }
 
-		private IEntity parent;
+		public List<Chunk> UpdateChunks { get; set; }
+
+		protected IEntity parent;
 		public T GetParent<T>()
 		{
 			if (parent is T)
@@ -185,7 +206,7 @@ namespace MyGUI.Utilities
 
 		//public EntityCollection<Component> internalComponentCollection { get; set; }
 
-		public Focus FocusStatus { get; set; }
+		public virtual Focus FocusStatus { get; set; }
 
 		public abstract Pixel[,] GetRenderBuffer();
 
@@ -195,6 +216,8 @@ namespace MyGUI.Utilities
 		{
 			throw new NotImplementedException();
 		}
+
+		public abstract void UpdateRenderBuffer();
 	}
 
 	public abstract class Container<TItem> : IEntity where TItem : INameable, IFocusable, IVisible
@@ -207,6 +230,8 @@ namespace MyGUI.Utilities
 		public AbstractCollection<TItem> Collection { get; set; } = new AbstractCollection<TItem>();
 
 		public abstract Pixel[,] GetRenderBuffer();
+
+		public List<Chunk> UpdateChunks { get; set; }
 
 		public abstract bool ParseAndExecute(ConsoleKeyInfo key);
 
@@ -236,8 +261,10 @@ namespace MyGUI.Utilities
 
 		public void Dispose()
 		{
-			throw new NotImplementedException();
+			Session.Resources.ActiveEntities.Remove(this);
 		}
+
+		public abstract void UpdateRenderBuffer();
 	}
 
 	class JsonHelper : IDisposable
@@ -268,8 +295,15 @@ namespace MyGUI.Utilities
 		public bool Has(string propertyName) => jObject.Properties().Where(p => p.Name == propertyName).Count() != 0;
 	}
 
-	public abstract class DisplayArea : Component
+	public static class Misc
 	{
+
+	}
+
+	public abstract class AbstractDisplayArea : PrimitiveComponent
+	{
+		public AbstractDisplayArea() => FocusStatus = Focus.NoFocus;
+
 		public virtual void MoveUp() { }
 		public virtual void MoveDown() { }
 		public virtual void MoveLeft() { }

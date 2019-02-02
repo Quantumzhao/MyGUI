@@ -4,6 +4,7 @@ using System.Text;
 using MyGUI.Utilities;
 using System.Linq;
 using static MyGUI.Session.Settings.Appearance.ComponentStyle;
+using static MyGUI.Session.Settings.Console;
 
 namespace MyGUI
 {
@@ -14,11 +15,20 @@ namespace MyGUI
 		{
 			Height = height;
 			Width = width;
-			Collection.AddRange(items.Select(i => { i.Parent = this; return i; }));
+			Collection.AddRange(items);
 			Collection.SetFocusing(0);
+			DisplayAreaComponent = new DisplayArea(Height - 2, Width - 2, this);
 			initRenderBuffer();
 		}
-		public ListBox(int height, int width, params ListItem[] items) : this(height,width, CreateListItem()) { }
+		public ListBox(int height, int width, params ListItem[] items)
+		{
+			Height = height;
+			Width = width;
+			Collection.AddRange(CreateListItem(items));
+			Collection.SetFocusing(0);
+			DisplayAreaComponent = new DisplayArea(Height - 2, Width - 2, this);
+			initRenderBuffer();
+		}
 		public ListBox(params MyGUI.ListItem[] items) : this(DefaultHeight, DefaultWidth, items) { }
 		public ListBox(params ListItem[] items) : this(DefaultHeight, DefaultWidth, items) { }
 		public ListBox(int height , int width ) : this(height, width, new MyGUI.ListItem[0]) { }
@@ -59,7 +69,7 @@ namespace MyGUI
 		public bool IsAcceptTextInput { get; set; }
 		public int CandidateNumber { get; set; } = 4;
 
-
+		private DisplayArea DisplayAreaComponent { get; set; }
 
 		private int currentItem;
 		public int CurrentItem
@@ -75,40 +85,20 @@ namespace MyGUI
 
 		public override bool ParseAndExecute(ConsoleKeyInfo key)
 		{
-			switch (key.Key)
+			if (!DisplayAreaComponent.ParseAndExecute(key))
 			{
-				case ConsoleKey.LeftArrow:
-				case ConsoleKey.UpArrow:
-					selectUpperItem();
-					break;
+				switch (key.Key)
+				{
+					case ConsoleKey.Escape:
+						Collection.SetFocusing();
+						break;
 
-				case ConsoleKey.Tab:
-				case ConsoleKey.RightArrow:
-				case ConsoleKey.DownArrow:
-					selectLowerItem();
-					break;
-
-				case ConsoleKey.Escape:
-					Collection.SetFocusing();
-					break;
-
-				default:
-					return false;
+					default:
+						return false;
+				}
 			}
 
 			return true;
-		}
-
-		private void selectUpperItem()
-		{
-			CurrentItem++;
-			Collection.SetFocusing(CurrentItem);
-		}
-
-		private void selectLowerItem()
-		{
-			CurrentItem--;
-			Collection.SetFocusing(CurrentItem);
 		}
 
 		#region RenderBuffer Related
@@ -121,8 +111,8 @@ namespace MyGUI
 				for (int i = 0; i < width; i++)
 				{
 					renderBuffer[i, j] = new Pixel() {
-						ForegroundColor = ConsoleColor.White,
-						BackgroundColor = ConsoleColor.Black
+						ForegroundColor = DefaultForegroundColor,
+						BackgroundColor = DefaultBackgroundColor
 					};
 					if      (j == 0      && i == 0)      renderBuffer[i, j].Character = BorderStyle.UpperLeft ;
 					else if (j == height && i == 0)      renderBuffer[i, j].Character = BorderStyle.LowerLeft ;
@@ -137,10 +127,16 @@ namespace MyGUI
 		{
 			throw new NotImplementedException();
 		}
+
+		public override void UpdateRenderBuffer()
+		{
+			throw new NotImplementedException();
+		}
 		#endregion
+
 		#region Methods of Instantiating ListItems
-		public static MyGUI.ListItem[] CreateListItem(params ListItem[] items)
-			=> items.Select(i => new MyGUI.ListItem(i.Name, i.Value)).ToArray();
+		public MyGUI.ListItem[] CreateListItem(params ListItem[] items)
+			=> items.Select(i => new MyGUI.ListItem(i.Name, i.Value, Width - 2, this)).ToArray();
 
 		// It is a wrapper of MyGUI.ListItem
 		public class ListItem : INameable
@@ -164,16 +160,81 @@ namespace MyGUI
 		}
 		#endregion
 
-		private class ListBoxDisplayArea : DisplayArea
+		private class DisplayArea : AbstractDisplayArea, IValue<string>
 		{
-			public override Pixel[,] GetRenderBuffer()
+			public DisplayArea(int height, int width, ListBox parent) : base()
+			{
+				Height = height;
+				Width = width;
+				SetParent(parent);
+				parent = GetParent<ListBox>();
+				initRenderBuffer();
+			}
+
+			public List<Chunk> updateChunk = new List<Chunk>();
+			public string Value { get ; set; }
+			public event Action<string> OnValueChanged;
+			private Pixel[,] renderBuffer;
+
+			private ListBox UnboxedParent;
+			private void selectUpperItem()
+			{
+				UnboxedParent.CurrentItem++;
+				UnboxedParent.Collection.SetFocusing(UnboxedParent.CurrentItem);
+			}
+
+			private void selectLowerItem()
+			{
+				UnboxedParent.CurrentItem--;
+				UnboxedParent.Collection.SetFocusing(UnboxedParent.CurrentItem);
+			}
+
+			private void SubmitValue()
+			{
+
+			}
+
+			private void initRenderBuffer()
+			{
+				renderBuffer = new Pixel[Width, Height];
+				for (int j = 0; j < Height; j++)
+				{
+					for (int i = 0; i < Width; i++)
+					{
+						renderBuffer[i, j] = new Pixel(' ', DefaultForegroundColor, DefaultBackgroundColor);
+					}
+				}
+				updateChunk.Add(new Chunk(new Coordinates(1, 1), Width, Height));
+			}
+			public override Pixel[,] GetRenderBuffer() => renderBuffer;
+			public override void UpdateRenderBuffer()
 			{
 				throw new NotImplementedException();
 			}
 
 			public override bool ParseAndExecute(ConsoleKeyInfo key)
 			{
-				throw new NotImplementedException();
+				switch (key.Key)
+				{
+					case ConsoleKey.UpArrow:
+					case ConsoleKey.LeftArrow:
+						selectUpperItem();
+						break;
+
+					case ConsoleKey.DownArrow:
+					case ConsoleKey.RightArrow:
+					case ConsoleKey.Tab:
+						selectLowerItem();
+						break;
+
+					case ConsoleKey.Enter:
+						break;
+
+					default:
+						return false;
+				}
+
+				return true;
 			}
 		}
 	}
@@ -181,33 +242,63 @@ namespace MyGUI
 	/// <summary>
 	///		Do not directly use this class
 	/// </summary>
-	public class ListItem : INameable, IFocusable, IVisible
+	public class ListItem : PrimitiveComponent
 	{
-		internal ListItem(string name, string value, Container<ListItem> parent = null)
+		internal ListItem(string name, string value, int width, Container<ListItem> parent)
 		{
 			Name = name;
 			Value = value;
 			Parent = parent;
+			Height = 1;
+			Width = width;
+			initRenderBuffer();
 		}
 
 		public Container<ListItem> Parent { get; set; }
 
-		public Coordinates Anchor { get; set; }
-		public int Width { get; set; }
-		public int Height { get; set; }
-		public string Name { get; set; }
 		public string Value { get; set; }
-		public Focus FocusStatus { get; set; } = Focus.Focusing;
 
-		public Pixel[,] GetRenderBuffer()
+		private Focus focusStatus;
+		public override Focus FocusStatus
+		{
+			get => focusStatus;
+			set
+			{
+				if (focusStatus != value)
+				{
+					focusStatus = value;
+					UpdateRenderBuffer();
+				}
+			}
+		}
+
+		private Pixel[,] renderBuffer;
+		private void initRenderBuffer()
+		{
+			renderBuffer = new Pixel[Width, Height];
+			for (int j = 0; j < Height; j++)
+			{
+				for (int i = 0; i < Width; i++)
+				{
+					renderBuffer[i, j] = new Pixel();
+				}
+			}
+			UpdateChunks.Add(new Chunk(new Coordinates(), Width, Height));
+		}
+		public override Pixel[,] GetRenderBuffer()
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool ParseAndExecute(ConsoleKeyInfo key)
+		public override void UpdateRenderBuffer()
 		{
+
 			throw new NotImplementedException();
 		}
 
+		public override bool ParseAndExecute(ConsoleKeyInfo key)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

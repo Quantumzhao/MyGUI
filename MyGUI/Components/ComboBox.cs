@@ -16,5 +16,10 @@ namespace MyGUI
 		{
 			throw new NotImplementedException();
 		}
+
+		public override void UpdateRenderBuffer()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

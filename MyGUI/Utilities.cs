@@ -29,7 +29,15 @@ namespace MyGUI.Utilities
 
 	public interface IVisible
 	{
+		List<Chunk> UpdateChunks { get; set; }
 		Pixel[,] GetRenderBuffer();
+		void UpdateRenderBuffer();
+	}
+
+	public interface IValue<T>
+	{
+		T Value { get; set; }
+		event Action<T> OnValueChanged;
 	}
 
 	public enum Focus

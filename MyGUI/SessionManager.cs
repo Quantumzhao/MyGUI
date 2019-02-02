@@ -8,7 +8,9 @@ namespace MyGUI.Session
 {
 	public static class Resources
 	{
-		public static List<IEntity> ActiveEntities { get; set; } = new List<IEntity>();
+		internal static List<IEntity> ActiveEntities { get; set; } = new List<IEntity>();
+
+		public static string ReturnValueCache { get; internal set; } = null;
 	}
 
 	public static class Settings
@@ -33,9 +35,6 @@ namespace MyGUI.Session
 		{
 			public static class ComponentStyle
 			{
-				public readonly static Dictionary<BoarderCharPos, char> BoarderStyle
-					= new Dictionary<BoarderCharPos, char>(11);
-
 				public static class BorderStyle
 				{
 					/*static BorderStyle()
@@ -85,13 +84,15 @@ namespace MyGUI.Session
 			public static readonly Color[] ColorPalette = new Color[16];
 			public static readonly ConsoleColor DefaultForegroundColor = ConsoleColor.White;
 			public static readonly ConsoleColor DefaultBackgroundColor = ConsoleColor.Black;
+			public static readonly ConsoleColor HighlightForegroundColor = ConsoleColor.White;
+			public static readonly ConsoleColor HighlightBackgroundColor = ConsoleColor.Blue;
 		}
 	}
 
 	public class Console
 	{
 		// Uncapsulated version of "Prompt"
-		public static void Load(Component component)
+		public static void Load(PrimitiveComponent component)
 		{
 
 		}
@@ -125,7 +126,7 @@ namespace MyGUI.Session
 			throw new NotImplementedException();
 		}
 
-		private static void redirectInput(Component component)
+		private static void redirectInput(PrimitiveComponent component)
 		{
 
 		}
@@ -134,16 +135,9 @@ namespace MyGUI.Session
 
 		}
 
-		private static void Render(Component component)
+		private static void Render(PrimitiveComponent component)
 		{
 
-		}
-
-		private struct Chunk
-		{
-			public Coordinates Anchor { get; set; }
-			public int Height { get; set; }
-			public int Width { get; set; }
 		}
 	}
 }
