@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using MyGUI.Utilities;
+using CustomizedFunction;
 
 namespace MyGUI.Session
 {
 	public static class Resources
 	{
-		internal static List<IEntity> ActiveEntities { get; set; } = new List<IEntity>();
+		internal static AbstractCollection<IEntity> ActiveEntities { get; set; } = new AbstractCollection<IEntity>();
 
 		public static string ReturnValueCache { get; internal set; } = null;
 	}
@@ -112,6 +113,39 @@ namespace MyGUI.Session
 			throw new NotImplementedException();
 		}
 
+		private static void Main(string arg)
+		{
+
+		}
+		private static void Main(ConsoleKeyInfo key)
+		{
+			bool entity;
+			if (entity = Resources.ActiveEntities.GetFocusing() != null)
+			{
+				Resources.ActiveEntities.SetFocusing(0);
+			}
+			else if (!Resources.ActiveEntities.GetFocusing().ParseAndExecute(key))
+			{
+				switch (key.Key)
+				{
+					case ConsoleKey.UpArrow:
+						break;
+
+					case ConsoleKey.DownArrow:
+						break;
+
+					case ConsoleKey.Escape:
+						break;
+
+					case ConsoleKey.Enter:
+						break;
+
+					default:
+						break;
+				}				
+			}
+		}
+
 		public static string GetUserInput()
 		{
 			throw new NotImplementedException();
@@ -133,6 +167,11 @@ namespace MyGUI.Session
 		private static void Render(PrimitiveComponent component)
 		{
 
+		}
+
+		internal static class Parser
+		{
+			
 		}
 	}
 }

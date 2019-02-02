@@ -12,7 +12,8 @@ using static MyGUI.Session.Resources;
 namespace MyGUI
 {
 	/// <summary>
-	///		Do not directly use this class
+	///		<para>Do not directly use this class</para>
+	///		<para>Use it like this: <c>new ListBox(new ListItem())</c></para>
 	/// </summary>
 	public class ListItem : PrimitiveComponent
 	{
@@ -54,7 +55,6 @@ namespace MyGUI
 				}
 			}
 			UpdateRenderBuffer();
-			UpdateChunks.Add(new Chunk(new Coordinates(), Width, Height));
 		}
 		public override Pixel[,] GetRenderBuffer() => renderBuffer;
 
@@ -74,18 +74,26 @@ namespace MyGUI
 					backgroundBrush = FocusedBackgroundColor;
 					break;
 
-				case Focus.NoFocus:
+				default:
 					foregroundBrush = DefaultForegroundColor;
 					backgroundBrush = DefaultBackgroundColor;
 					break;
 			}
 
-			throw new NotImplementedException();
-		}
+			Pixel[,] buffer = Caption.GetRenderBuffer();
+			for (int j = 0; j < Height; j++)
+			{
+				for (int i = 0; i < Width; i++)
+				{
+					renderBuffer[i, j].ForegroundColor = foregroundBrush;
+					renderBuffer[i, j].BackgroundColor = backgroundBrush;
+					renderBuffer[i, j].Character = buffer[i, j].Character;
+					UpdateChunks.Add(new Point(i, j));
+				}
+			}
 
-		public override bool ParseAndExecute(ConsoleKeyInfo key)
-		{
-			throw new NotImplementedException();
+			UpdateChunks.AddRange(Caption.UpdateChunks);
+			UpdateChunks.RemoveDuplicate();
 		}
 	}
 }

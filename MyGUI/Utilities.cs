@@ -7,7 +7,7 @@ namespace MyGUI.Utilities
 {
 	public interface IEntity : IKeyEvent, INameable, IFocusable, IVisible, IDisposable
 	{
-		Coordinates Anchor { get; set; }
+		Point Anchor { get; set; }
 		int Width { get; set; }
 		int Height { get; set; }
 	}
@@ -29,7 +29,7 @@ namespace MyGUI.Utilities
 
 	public interface IVisible
 	{
-		List<Chunk> UpdateChunks { get; set; }
+		List<Point> UpdateChunks { get; set; }
 		Pixel[,] GetRenderBuffer();
 		void UpdateRenderBuffer();
 	}

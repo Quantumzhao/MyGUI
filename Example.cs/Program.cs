@@ -18,6 +18,8 @@ namespace Example
 				)
 			);
 			string input = MyGUIConsole.GetUserInput();
+#elif true
+			MyGUIConsole.Execute("Command1 -o1 -o2 arg1 arg2");
 #endif
 			Console.ReadLine();
 		}

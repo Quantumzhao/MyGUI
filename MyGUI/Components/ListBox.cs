@@ -137,11 +137,11 @@ namespace MyGUI
 				Height = height;
 				Width = width;
 				SetParent(parent);
-				parent = GetParent<ListBox>();
+				UnboxedParent = GetParent<ListBox>();
 				initRenderBuffer();
 			}
 
-			public List<Chunk> updateChunk = new List<Chunk>();
+			public List<Point> updateChunk = new List<Point>();
 			public string Value { get ; set; }
 			public event Action<string> OnValueChanged;
 			private Pixel[,] renderBuffer;
@@ -173,12 +173,12 @@ namespace MyGUI
 						renderBuffer[i, j] = new Pixel(' ', DefaultForegroundColor, DefaultBackgroundColor);
 					}
 				}
-				updateChunk.Add(new Chunk(new Coordinates(1, 1), Width, Height));
+				UpdateRenderBuffer();
 			}
 			public override Pixel[,] GetRenderBuffer() => renderBuffer;
 			public override void UpdateRenderBuffer()
 			{
-				throw new NotImplementedException();
+				
 			}
 
 			public override bool ParseAndExecute(ConsoleKeyInfo key)

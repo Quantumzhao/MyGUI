@@ -37,35 +37,34 @@ namespace MyGUI.Utilities
 		}
 	}
 
-	public struct Chunk
+	public struct Point
 	{
-		public Chunk(Coordinates anchor, int width, int height)
-		{
-			Anchor = anchor;
-			Width = width;
-			Height = height;
-		}
-
-		public readonly Coordinates Anchor;
-		public readonly int Height;
-		public readonly int Width;
-
-		public static Chunk[] Merge(params Chunk[] chunks)
-		{
-			throw new NotImplementedException();
-		}
-	}
-
-	public struct Coordinates
-	{
-		public Coordinates(int x = 0, int y = 0)
+		public Point(int x = 0, int y = 0)
 		{
 			X = x;
 			Y = y;
 		}
 
-		public int X { get; set; }
-		public int Y { get; set; }
+		public int X;
+		public int Y;
+
+		public static bool operator ==(Point first, Point second)
+		{
+			if (second.X != first.X) return false;
+			else if (second.Y != first.Y) return false;
+			else return true;
+		}
+
+		public static bool operator !=(Point first, Point second)
+		{
+			if (second.X == first.X) return false;
+			else if (second.Y == first.Y) return false;
+			else return true;
+		}
+
+		public override bool Equals(object obj) => base.Equals(obj);
+
+		public override int GetHashCode() => base.GetHashCode();
 	}
 
 	public class AbstractCollection<T> where T : INameable, IFocusable
@@ -159,7 +158,6 @@ namespace MyGUI.Utilities
 				}
 			}
 		}
-
 		/// <summary>
 		///		Set the only Focusing element from FOCUSING => FOCUSED
 		/// </summary>
@@ -167,18 +165,23 @@ namespace MyGUI.Utilities
 		{
 			GetFocusing().FocusStatus = Focus.Focused;
 		}
+
+		public void Remove(T element)
+		{
+			collection.Remove(element);
+		}
 	}
 
 	public abstract class PrimitiveComponent : IEntity
 	{
-		public Coordinates Anchor { get; set; } = new Coordinates();
+		public Point Anchor { get; set; } = new Point();
 
 		public int Width { get; set; }
 		public int Height { get; set; }
 
 		public string Name { get; set; }
 
-		public List<Chunk> UpdateChunks { get; set; }
+		public List<Point> UpdateChunks { get; set; }
 
 		protected IEntity parent = null;
 		public T GetParent<T>()
@@ -210,7 +213,14 @@ namespace MyGUI.Utilities
 
 		public abstract Pixel[,] GetRenderBuffer();
 
-		public abstract bool ParseAndExecute(ConsoleKeyInfo key);
+		public virtual bool ParseAndExecute(ConsoleKeyInfo key)
+		{
+			switch (key.Key)
+			{
+				default:
+					return false;
+			}
+		}
 
 		public void Dispose()
 		{
@@ -222,7 +232,7 @@ namespace MyGUI.Utilities
 
 	public abstract class Container<TItem> : IEntity where TItem : INameable, IFocusable, IVisible
 	{
-		public Coordinates Anchor { get; set; }
+		public Point Anchor { get; set; }
 		public virtual int Width { get; set; }
 		public virtual int Height { get; set; }
 		public string Name { get; set; }
@@ -231,7 +241,7 @@ namespace MyGUI.Utilities
 
 		public abstract Pixel[,] GetRenderBuffer();
 
-		public List<Chunk> UpdateChunks { get; set; }
+		public List<Point> UpdateChunks { get; set; }
 
 		public abstract bool ParseAndExecute(ConsoleKeyInfo key);
 
@@ -297,7 +307,12 @@ namespace MyGUI.Utilities
 
 	public static class Misc
 	{
-
+		public static void RemoveDuplicate(this List<Point> points)
+		{
+			for (int i = 0; i < points.Count; i++)
+				for (int j = 0; j < i; j++)
+					if (points[i] == points[j]) points.RemoveAt(i--);
+		}
 	}
 
 	public abstract class AbstractDisplayArea : PrimitiveComponent

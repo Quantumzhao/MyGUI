@@ -18,7 +18,7 @@ namespace MyGUI
 			Height = height;
 			Width = width;
 
-			Caption = caption != null ? caption : Name;
+			Caption = caption ?? Name;
 			initRenderBuffer();
 		}
 		public Label(string caption = null) : this(DefaultHeight, DefaultWidth, caption) { }
@@ -55,13 +55,15 @@ namespace MyGUI
 				{
 					if (charPtr < Caption.Length)
 					{
-						renderBuffer[i, 0].Character = Caption[charPtr];
+						if (renderBuffer[i, 0].Character != Caption[charPtr])
+						{
+							renderBuffer[i, 0].Character = Caption[charPtr];
+							UpdateChunks.Add(new Point(i, j));
+						}
 						charPtr++;
 					}
 					else
 					{
-						if (j > 0) UpdateChunks.Add(new Chunk(new Coordinates(), Width, j - 1));
-						UpdateChunks.Add(new Chunk(new Coordinates(0, j), i, 1));
 						break;
 					}
 				}
@@ -82,10 +84,6 @@ namespace MyGUI
 				default:
 					return false;
 			}
-
-#pragma warning disable CS0162 // Unreachable code detected
-			return true;
-#pragma warning restore CS0162 // Unreachable code detected
 		}
 	}
 }
