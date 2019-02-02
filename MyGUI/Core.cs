@@ -180,7 +180,7 @@ namespace MyGUI.Utilities
 
 		public List<Chunk> UpdateChunks { get; set; }
 
-		protected IEntity parent;
+		protected IEntity parent = null;
 		public T GetParent<T>()
 		{
 			if (parent is T)

@@ -11,28 +11,24 @@ namespace MyGUI
 	public class ListBox : Container<ListItem>
 	{
 		#region Methods of Instantiating ComboBox
-		public ListBox(int height, int width, params MyGUI.ListItem[] items)
-		{
-			Height = height;
-			Width = width;
-			Collection.AddRange(items);
-			Collection.SetFocusing(0);
-			DisplayAreaComponent = new DisplayArea(Height - 2, Width - 2, this);
-			initRenderBuffer();
-		}
 		public ListBox(int height, int width, params ListItem[] items)
 		{
 			Height = height;
 			Width = width;
-			Collection.AddRange(CreateListItem(items));
+			Collection.AddRange(items.Select(i => 
+			{
+				i.Parent = this;
+				i.Width = Width - 2;
+				i.Height = 1;
+				return i;
+			}));
 			Collection.SetFocusing(0);
 			DisplayAreaComponent = new DisplayArea(Height - 2, Width - 2, this);
 			initRenderBuffer();
 		}
-		public ListBox(params MyGUI.ListItem[] items) : this(DefaultHeight, DefaultWidth, items) { }
 		public ListBox(params ListItem[] items) : this(DefaultHeight, DefaultWidth, items) { }
-		public ListBox(int height , int width ) : this(height, width, new MyGUI.ListItem[0]) { }
-		public ListBox() : this(DefaultHeight, DefaultWidth, new MyGUI.ListItem[0]){ }
+		public ListBox(int height , int width ) : this(height, width, new ListItem[0]) { }
+		public ListBox() : this(DefaultHeight, DefaultWidth, new ListItem[0]){ }
 		#endregion
 
 		public const int DefaultHeight = MinHeight;
@@ -134,32 +130,6 @@ namespace MyGUI
 		}
 		#endregion
 
-		#region Methods of Instantiating ListItems
-		public MyGUI.ListItem[] CreateListItem(params ListItem[] items)
-			=> items.Select(i => new MyGUI.ListItem(i.Name, i.Value, Width - 2, this)).ToArray();
-
-		// It is a wrapper of MyGUI.ListItem
-		public class ListItem : INameable
-		{
-			public string Name { get; set; }
-			public string Value { get; set; }
-
-			public ListItem(string name, string value = null)
-			{
-				if (value == null)
-				{
-					Value = name;
-				}
-				else
-				{
-					Value = value;
-				}
-
-				Name = name;
-			}
-		}
-		#endregion
-
 		private class DisplayArea : AbstractDisplayArea, IValue<string>
 		{
 			public DisplayArea(int height, int width, ListBox parent) : base()
@@ -175,7 +145,6 @@ namespace MyGUI
 			public string Value { get ; set; }
 			public event Action<string> OnValueChanged;
 			private Pixel[,] renderBuffer;
-
 			private ListBox UnboxedParent;
 			private void selectUpperItem()
 			{
@@ -236,69 +205,6 @@ namespace MyGUI
 
 				return true;
 			}
-		}
-	}
-
-	/// <summary>
-	///		Do not directly use this class
-	/// </summary>
-	public class ListItem : PrimitiveComponent
-	{
-		internal ListItem(string name, string value, int width, Container<ListItem> parent)
-		{
-			Name = name;
-			Value = value;
-			Parent = parent;
-			Height = 1;
-			Width = width;
-			initRenderBuffer();
-		}
-
-		public Container<ListItem> Parent { get; set; }
-
-		public string Value { get; set; }
-
-		private Focus focusStatus;
-		public override Focus FocusStatus
-		{
-			get => focusStatus;
-			set
-			{
-				if (focusStatus != value)
-				{
-					focusStatus = value;
-					UpdateRenderBuffer();
-				}
-			}
-		}
-
-		private Pixel[,] renderBuffer;
-		private void initRenderBuffer()
-		{
-			renderBuffer = new Pixel[Width, Height];
-			for (int j = 0; j < Height; j++)
-			{
-				for (int i = 0; i < Width; i++)
-				{
-					renderBuffer[i, j] = new Pixel();
-				}
-			}
-			UpdateChunks.Add(new Chunk(new Coordinates(), Width, Height));
-		}
-		public override Pixel[,] GetRenderBuffer()
-		{
-			throw new NotImplementedException();
-		}
-
-		public override void UpdateRenderBuffer()
-		{
-
-			throw new NotImplementedException();
-		}
-
-		public override bool ParseAndExecute(ConsoleKeyInfo key)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

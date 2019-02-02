@@ -37,13 +37,6 @@ namespace MyGUI.Session
 			{
 				public static class BorderStyle
 				{
-					/*static BorderStyle()
-					{
-						BoarderStyle.Add(BoarderCharPos.UpperLeft, '╔');
-						BoarderStyle.Add(BoarderCharPos.LowerLeft, '╚');
-						BoarderStyle.Add(BoarderCharPos.UpperRight, '╗');
-					}*/
-
 					public static readonly char UpperLeft = '╔';
 					public static readonly char LowerLeft = '╚';
 					public static readonly char UpperRight = '╗';
@@ -84,8 +77,10 @@ namespace MyGUI.Session
 			public static readonly Color[] ColorPalette = new Color[16];
 			public static readonly ConsoleColor DefaultForegroundColor = ConsoleColor.White;
 			public static readonly ConsoleColor DefaultBackgroundColor = ConsoleColor.Black;
-			public static readonly ConsoleColor HighlightForegroundColor = ConsoleColor.White;
-			public static readonly ConsoleColor HighlightBackgroundColor = ConsoleColor.Blue;
+			public static readonly ConsoleColor FocusingForegroundColor = ConsoleColor.White;
+			public static readonly ConsoleColor FocusingBackgroundColor = ConsoleColor.Blue;
+			public static readonly ConsoleColor FocusedForegroundColor = ConsoleColor.Black;
+			public static readonly ConsoleColor FocusedBackgroundColor = ConsoleColor.Gray;
 		}
 	}
 
