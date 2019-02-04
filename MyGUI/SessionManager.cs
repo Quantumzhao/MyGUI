@@ -82,6 +82,8 @@ namespace MyGUI.Session
 			public static readonly ConsoleColor FocusingBackgroundColor = ConsoleColor.Blue;
 			public static readonly ConsoleColor FocusedForegroundColor = ConsoleColor.Black;
 			public static readonly ConsoleColor FocusedBackgroundColor = ConsoleColor.Gray;
+			public static readonly ConsoleColor SelectedForegroundColor = ConsoleColor.Black;
+			public static readonly ConsoleColor SelectedBackgroundColor = ConsoleColor.Gray;
 		}
 	}
 
@@ -108,60 +110,87 @@ namespace MyGUI.Session
 
 			throw new NotImplementedException();
 		}
-		public static string Prompt()
-		{
-			throw new NotImplementedException();
-		}
 
-		private static void Main(string arg)
+		private static void Main()
 		{
-
-		}
-		private static void Main(ConsoleKeyInfo key)
-		{
-			bool entity;
-			if (entity = Resources.ActiveEntities.GetFocusing() != null)
+			if (!Settings.IsConventionalCliInterface)
 			{
-				Resources.ActiveEntities.SetFocusing(0);
-			}
-			else if (!Resources.ActiveEntities.GetFocusing().ParseAndExecute(key))
-			{
-				switch (key.Key)
+				while (true)
 				{
-					case ConsoleKey.UpArrow:
-						break;
-
-					case ConsoleKey.DownArrow:
-						break;
-
-					case ConsoleKey.Escape:
-						break;
-
-					case ConsoleKey.Enter:
-						break;
-
-					default:
-						break;
-				}				
+					ExecuteConsoleKey();
+				}
 			}
+			else
+			{
+				ExecuteCommand(System.Console.ReadLine());
+			}
+		}
+
+		private static void SelectPrevEntity()
+		{
+
+		}
+
+		private static void SelectNextEntity()
+		{
+
 		}
 
 		public static string GetUserInput()
 		{
-			throw new NotImplementedException();
+			Main();
+
+			return Resources.ReturnValueCache;
 		}
 		public T GetUserInput<T>()
 		{
 			throw new NotImplementedException();
 		}
 
-		private static void redirectInput(PrimitiveComponent component)
+		private static void FocusingOnCurrentEntity()
 		{
 
 		}
-		private static void redirectInput()
+
+		private static void ExecuteCommand(string command)
 		{
 
+		}
+
+		private static void ExecuteConsoleKey()
+		{
+			ConsoleKeyInfo key = System.Console.ReadKey();
+			var entity = Resources.ActiveEntities.GetFocusing();
+			if (entity == null)
+			{
+				Resources.ActiveEntities.SetFocusing(0);
+			}
+			if (entity.ParseAndExecute(key))
+			{
+				switch (key.Key)
+				{
+					case ConsoleKey.UpArrow:
+					case ConsoleKey.LeftArrow:
+						SelectPrevEntity();
+						break;
+
+					case ConsoleKey.DownArrow:
+					case ConsoleKey.RightArrow:
+						SelectNextEntity();
+						break;
+
+					case ConsoleKey.Enter:
+						FocusingOnCurrentEntity();
+						break;
+
+					case ConsoleKey.Escape:
+						return;
+
+					default:
+						break;
+				}
+
+			}
 		}
 
 		private static void Render(PrimitiveComponent component)

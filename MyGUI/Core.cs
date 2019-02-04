@@ -67,6 +67,23 @@ namespace MyGUI.Utilities
 		public override int GetHashCode() => base.GetHashCode();
 	}
 
+	public struct Input
+	{
+		public Input(ConsoleKeyInfo consoleKeyInfo)
+		{
+			InputKey = consoleKeyInfo;
+			InputString = null;
+		}
+		public Input(string inputString)
+		{
+			InputString = inputString;
+			InputKey = null;
+		}
+
+		public ConsoleKeyInfo? InputKey;
+		public string InputString;
+	}
+
 	public class AbstractCollection<T> where T : INameable, IFocusable
 	{
 		public AbstractCollection(CustomFunctionBuilder more_AddElement_Behavior = null)
@@ -209,7 +226,7 @@ namespace MyGUI.Utilities
 
 		//public EntityCollection<Component> internalComponentCollection { get; set; }
 
-		public virtual Focus FocusStatus { get; set; }
+		public virtual Focus? FocusStatus { get; set; }
 
 		public abstract Pixel[,] GetRenderBuffer();
 
@@ -236,7 +253,7 @@ namespace MyGUI.Utilities
 		public virtual int Width { get; set; }
 		public virtual int Height { get; set; }
 		public string Name { get; set; }
-		public Focus FocusStatus { get; set; }
+		public Focus? FocusStatus { get; set; }
 		public AbstractCollection<TItem> Collection { get; set; } = new AbstractCollection<TItem>();
 
 		public abstract Pixel[,] GetRenderBuffer();

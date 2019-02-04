@@ -30,8 +30,8 @@ namespace MyGUI
 
 		public string Value { get; set; }
 
-		private Focus focusStatus;
-		public override Focus FocusStatus
+		private Focus? focusStatus;
+		public override Focus? FocusStatus
 		{
 			get => focusStatus;
 			set
@@ -65,6 +65,11 @@ namespace MyGUI
 			ConsoleColor backgroundBrush;
 			switch (FocusStatus)
 			{
+				case Focus.Selected:
+					foregroundBrush = SelectedForegroundColor;
+					backgroundBrush = SelectedBackgroundColor;
+					break;
+
 				case Focus.Focusing:
 					foregroundBrush = FocusingForegroundColor;
 					backgroundBrush = FocusingBackgroundColor;

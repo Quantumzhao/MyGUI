@@ -24,7 +24,7 @@ namespace MyGUI.Utilities
 
 	public interface IFocusable
 	{
-		Focus FocusStatus { get; set; }
+		Focus? FocusStatus { get; set; }
 	}
 
 	public interface IVisible
@@ -44,7 +44,8 @@ namespace MyGUI.Utilities
 	{
 		Focusing,
 		Focused,
-		NoFocus
+		NoFocus,
+		Selected
 	}
 
 	public enum BoarderCharPos
