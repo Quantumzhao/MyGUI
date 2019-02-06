@@ -114,19 +114,21 @@ namespace MyGUI.Session
 			throw new NotImplementedException();
 		}
 
-		private static void Main()
+		public static void Execute(string command = null)
 		{
-			if (!Settings.IsConventionalCliInterface)
+			if (command == null)
 			{
-				while (true)
-				{
-					ExecuteConsoleKey();
-				}
+				Main();
 			}
 			else
 			{
-				ExecuteCommand(System.Console.ReadLine());
+				ExecuteCommand(command);
 			}
+		}
+
+		private static void Main()
+		{
+			while (ExecuteConsoleKey()) { }
 		}
 
 		private static void SelectPrevEntity()
@@ -160,7 +162,7 @@ namespace MyGUI.Session
 
 		}
 
-		private static void ExecuteConsoleKey()
+		private static bool ExecuteConsoleKey()
 		{
 			ConsoleKeyInfo key = System.Console.ReadKey();
 			var entity = Resources.ActiveEntities.GetFocusing();
@@ -187,13 +189,14 @@ namespace MyGUI.Session
 						break;
 
 					case ConsoleKey.Escape:
-						return;
+						return false;
 
 					default:
 						break;
 				}
-
 			}
+
+			return true;
 		}
 
 		private static void Render(PrimitiveComponent component)

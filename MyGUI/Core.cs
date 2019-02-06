@@ -341,8 +341,4 @@ namespace MyGUI.Utilities
 		public virtual void MoveLeft() { }
 		public virtual void MoveRight() { }
 	}
-
-	public class ConsoleCommand
-	{
-	}
 }
