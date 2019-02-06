@@ -18,15 +18,18 @@ namespace MyGUI
 	/// </summary>
 	public class ListItem : PrimitiveComponent
 	{
-		public ListItem(string name, string value)
+		public ListItem(string caption, string name, string value)
 		{
+			LabelComponent.Caption = caption;
 			Name = name;
 			Value = value;
 			initRenderBuffer();
 		}
+		public ListItem(string caption, string value) : this(caption, caption, value) { }
+		public ListItem(string caption) : this(caption, caption, caption) { }
 
 		public Container<ListItem> Parent { get; set; }
-		public Label Caption { get; set; }
+		public Label LabelComponent { get; set; }
 
 		public string Value { get; set; }
 
@@ -86,7 +89,7 @@ namespace MyGUI
 					break;
 			}
 
-			Pixel[,] buffer = Caption.GetRenderBuffer();
+			Pixel[,] buffer = LabelComponent.GetRenderBuffer();
 			for (int j = 0; j < Height; j++)
 			{
 				for (int i = 0; i < Width; i++)
@@ -98,7 +101,7 @@ namespace MyGUI
 				}
 			}
 
-			UpdateChunks.AddRange(Caption.UpdateChunks);
+			UpdateChunks.AddRange(LabelComponent.UpdateChunks);
 			UpdateChunks.RemoveDuplicate();
 		}
 	}

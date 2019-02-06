@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define Test
+
+using System;
 using MyGUI;
 using MyGUIConsole = MyGUI.Session.Console;
 using MyGUI.Utilities;
@@ -10,15 +12,16 @@ namespace Example
 	{
 		static void Main(string[] args)
 		{
-#if true
+#if !Test
 			MyGUIConsole.Prompt(
 				new ListBox(
-					new ListItem("Name1", "v1"),
+					new ListItem("Name1"),
 					new ListItem("Name2", "v2")
 				)
 			);
 			string input = MyGUIConsole.GetUserInput();
 #elif true
+			MyGUI.Session.Resources.ConsoleCommand = args;
 			MyGUIConsole.Execute("Command1 -o1 -o2 arg1 arg2");
 #endif
 			Console.ReadLine();

@@ -10,8 +10,11 @@ namespace MyGUI.Session
 	public static class Resources
 	{
 		internal static AbstractCollection<IEntity> ActiveEntities { get; set; } = new AbstractCollection<IEntity>();
+		internal static int currentEntity;
 
 		public static string ReturnValueCache { get; internal set; } = null;
+
+		public static string[] ConsoleCommand { get; set; }
 	}
 
 	public static class Settings
