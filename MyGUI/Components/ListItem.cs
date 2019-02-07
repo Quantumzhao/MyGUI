@@ -20,9 +20,10 @@ namespace MyGUI
 	{
 		public ListItem(string caption, string name, string value)
 		{
-			LabelComponent.Caption = caption;
+			LabelComponent.Value = caption;
 			Name = name;
 			Value = value;
+			LabelComponent = new Label(caption, this);
 			initRenderBuffer();
 		}
 		public ListItem(string caption, string value) : this(caption, caption, value) { }
@@ -33,8 +34,8 @@ namespace MyGUI
 
 		public string Value { get; set; }
 
-		private Focus? focusStatus;
-		public override Focus? FocusStatus
+		private Focus focusStatus;
+		public override Focus FocusStatus
 		{
 			get => focusStatus;
 			set

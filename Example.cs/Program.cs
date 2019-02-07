@@ -12,14 +12,14 @@ namespace Example
 	{
 		static void Main(string[] args)
 		{
-#if !Test
+#if Test
 			MyGUIConsole.Prompt(
 				new ListBox(
 					new ListItem("Name1"),
 					new ListItem("Name2", "v2")
 				)
 			);
-			string input = MyGUIConsole.GetUserInput();
+			MyGUIConsole.Execute();
 #elif true
 			MyGUI.Session.Resources.ConsoleCommand = args;
 			MyGUIConsole.Execute("Command1 -o1 -o2 arg1 arg2");

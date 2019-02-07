@@ -12,24 +12,51 @@ using static MyGUI.Session.Resources;
 
 namespace MyGUI
 {
-	public class Label : PrimitiveComponent
+	public class Label : PrimitiveComponent, IValue<string>
 	{
-		public Label(int height, int width, string caption = null)
+		public Label(int height, int width, IEntity parent, string caption, string name = null)
 		{
 			Height = height;
 			Width = width;
-
-			Caption = caption ?? Name;
+			Value = caption;
+			Name = name ?? caption;
 			initRenderBuffer();
 		}
-		public Label(string caption = null) : this(DefaultHeight, DefaultWidth, caption) { }
+		public Label(string caption, IEntity parent = null)
+			: this(DefaultHeight, DefaultWidth, parent, caption, caption) { }
 
-		public const int DefaultHeight = 1;
+		public const int MinHeight = 1;
+		public const int MinWidth = 4;
+		public const int DefaultHeight = MinHeight;
 		public const int DefaultWidth = 10;
-		public string Caption { get; set; }
+
+		public override int Height
+		{
+			get => base.Height;
+			set
+			{
+				if (value < MinHeight) base.Height = MinHeight;
+				else base.Height = value;
+			}
+		}
+
+		public override int Width
+		{
+			get => base.Width;
+			set
+			{
+				if (value < MinWidth) base.Width = MinWidth;
+				else base.Width = value;
+			}
+		}
+
+		public string Value { get; set; }
 		public bool IsWordWrap { get; set; } = false;
 
 		private Pixel[,] renderBuffer;
+
+		public event Action<string> OnValueChanged = null;
+
 		public override Pixel[,] GetRenderBuffer()
 		{
 			throw new NotImplementedException();
@@ -54,11 +81,11 @@ namespace MyGUI
 			{
 				for (int i = 0; i < Width; i++)
 				{
-					if (charPtr < Caption.Length)
+					if (charPtr < Value.Length)
 					{
-						if (renderBuffer[i, 0].Character != Caption[charPtr])
+						if (renderBuffer[i, 0].Character != Value[charPtr])
 						{
-							renderBuffer[i, 0].Character = Caption[charPtr];
+							renderBuffer[i, 0].Character = Value[charPtr];
 							UpdateChunks.Add(new Point(i, j));
 						}
 						charPtr++;
@@ -69,22 +96,14 @@ namespace MyGUI
 					}
 				}
 			}
-			if (!IsWordWrap && Caption.Length > Width)
+			if (!IsWordWrap && Value.Length > Width)
 			{
 				for (int i = Width - 3; i < Width; i++)
 				{
 					renderBuffer[i, 0].Character = '.';
 				}
 			}
-		}
-
-		public override bool ParseAndExecute(ConsoleKeyInfo key)
-		{
-			switch (key.Key)
-			{
-				default:
-					return false;
-			}
+			parent.UpdateChunks.AddRange(UpdateChunks);
 		}
 	}
 }

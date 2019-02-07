@@ -9,9 +9,17 @@ namespace MyGUI.Session
 {
 	public static class Resources
 	{
+		static Resources()
+		{
+			Settings.isInitialized = true;
+		}
+
+		// This filed is used to trigger the static constructor
+		internal static bool isInitialized = false;
+
 		internal static AbstractCollection<IEntity> ActiveEntities { get; set; } = new AbstractCollection<IEntity>();
 		internal static int currentEntity;
-
+		
 		public static string ReturnValueCache { get; internal set; } = null;
 
 		public static string[] ConsoleCommand { get; set; }
@@ -21,8 +29,7 @@ namespace MyGUI.Session
 	{
 		private static JsonHelper jsonHelper = null;
 		static Settings()
-		{
-			
+		{			
 			try
 			{
 				jsonHelper = new JsonHelper("config.json");
@@ -32,6 +39,9 @@ namespace MyGUI.Session
 				
 			}
 		}
+
+		// This filed is used to trigger the static constructor
+		public static bool isInitialized = false;
 
 		public static bool IsConventionalCliInterface { get; set; } = false;
 
@@ -90,8 +100,13 @@ namespace MyGUI.Session
 		}
 	}
 
-	public class Console
+	public static class Console
 	{
+		static Console()
+		{
+			Resources.isInitialized = true;
+		}
+
 		// Uncapsulated version of "Prompt"
 		public static void Load(PrimitiveComponent component)
 		{
@@ -102,14 +117,9 @@ namespace MyGUI.Session
 
 		}
 
-		public static string Prompt(IEntity entity)
+		public static string Prompt(params IEntity[] entity)
 		{
-			Resources.ActiveEntities.Add(entity);
-
-			if (Settings.IsConventionalCliInterface)
-			{
-
-			}
+			Resources.ActiveEntities.AddRange(entity);
 
 			throw new NotImplementedException();
 		}
@@ -133,12 +143,12 @@ namespace MyGUI.Session
 
 		private static void SelectPrevEntity()
 		{
-
+			Resources.ActiveEntities.Pointer--;
 		}
 
 		private static void SelectNextEntity()
 		{
-
+			Resources.ActiveEntities.Pointer++;
 		}
 
 		public static string GetUserInput()
@@ -147,14 +157,14 @@ namespace MyGUI.Session
 
 			return Resources.ReturnValueCache;
 		}
-		public T GetUserInput<T>()
+		public static T GetUserInput<T>()
 		{
 			throw new NotImplementedException();
 		}
 
 		private static void FocusingOnCurrentEntity()
 		{
-
+			Resources.ActiveEntities.SetFocusing(Resources.ActiveEntities.Pointer);
 		}
 
 		private static void ExecuteCommand(string command)
@@ -167,10 +177,6 @@ namespace MyGUI.Session
 			ConsoleKeyInfo key = System.Console.ReadKey();
 			var entity = Resources.ActiveEntities.GetFocusing();
 			if (entity == null)
-			{
-				Resources.ActiveEntities.SetFocusing(0);
-			}
-			if (entity.ParseAndExecute(key))
 			{
 				switch (key.Key)
 				{
@@ -194,6 +200,14 @@ namespace MyGUI.Session
 					default:
 						break;
 				}
+			}
+			else if (!entity.ParseAndExecute(key))
+			{
+
+			}
+			else
+			{
+
 			}
 
 			return true;

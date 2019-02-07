@@ -8,8 +8,8 @@ namespace MyGUI.Utilities
 	public interface IEntity : IKeyEvent, INameable, IFocusable, IVisible, IDisposable
 	{
 		Point Anchor { get; set; }
-		int Width { get; set; }
-		int Height { get; set; }
+		int Width { get; }
+		int Height { get; }
 	}
 
 	public interface IKeyEvent
@@ -24,7 +24,7 @@ namespace MyGUI.Utilities
 
 	public interface IFocusable
 	{
-		Focus? FocusStatus { get; set; }
+		Focus FocusStatus { get; set; }
 	}
 
 	public interface IVisible

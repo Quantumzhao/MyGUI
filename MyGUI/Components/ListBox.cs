@@ -26,7 +26,7 @@ namespace MyGUI
 				i.Height = 1;
 				return i;
 			}));
-			Collection.SetFocusing(0);
+			//Collection.SetFocusing(0);
 			DisplayAreaComponent = new DisplayArea(Height - 2, Width - 2, this);
 			initRenderBuffer();
 		}
@@ -71,18 +71,6 @@ namespace MyGUI
 
 		private DisplayArea DisplayAreaComponent { get; set; }
 
-		private int currentItem;
-		public int CurrentItem
-		{
-			get => currentItem;
-			set
-			{
-				if (value >= Collection.Count) value = 0;
-				else if (value < 0) value = Collection.Count - 1;
-				else currentItem = value;
-			}
-		}
-
 		public override bool ParseAndExecute(ConsoleKeyInfo key)
 		{
 			if (!DisplayAreaComponent.ParseAndExecute(key))
@@ -91,6 +79,9 @@ namespace MyGUI
 				{
 					case ConsoleKey.Escape:
 						Collection.SetFocusing();
+						break;
+
+					case ConsoleKey.Enter:
 						break;
 
 					default:
@@ -125,7 +116,7 @@ namespace MyGUI
 		}
 		public override Pixel[,] GetRenderBuffer()
 		{
-			throw new NotImplementedException();
+			return renderBuffer;
 		}
 
 		public override void UpdateRenderBuffer()
@@ -134,7 +125,7 @@ namespace MyGUI
 		}
 		#endregion
 
-		private class DisplayArea : AbstractDisplayArea, IValue<string>
+		private class DisplayArea : AbstractDisplayArea
 		{
 			public DisplayArea(int height, int width, ListBox parent) : base()
 			{
@@ -147,19 +138,28 @@ namespace MyGUI
 
 			public List<Point> updateChunk = new List<Point>();
 			public string Value { get ; set; }
-			public event Action<string> OnValueChanged;
 			private Pixel[,] renderBuffer;
 			private ListBox UnboxedParent;
 			private void selectUpperItem()
 			{
-				UnboxedParent.CurrentItem++;
-				UnboxedParent.Collection.SetFocusing(UnboxedParent.CurrentItem);
+				UnboxedParent.Collection.Pointer++;
+				UnboxedParent.Collection.SetFocusing(UnboxedParent.Collection.Pointer);
 			}
 
 			private void selectLowerItem()
 			{
-				UnboxedParent.CurrentItem--;
-				UnboxedParent.Collection.SetFocusing(UnboxedParent.CurrentItem);
+				UnboxedParent.Collection.Pointer--;
+				UnboxedParent.Collection.SetFocusing(UnboxedParent.Collection.Pointer);
+			}
+
+			public override void MoveUp()
+			{
+
+			}
+
+			public override void MoveDown()
+			{
+
 			}
 
 			private void SubmitValue()
