@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using MyGUI.Utilities;
-using CustomizedFunction;
+using SConsole = System.Console;
+using MyPoint = MyGUI.Utilities.Point;
 
 namespace MyGUI.Session
 {
@@ -97,14 +98,13 @@ namespace MyGUI.Session
 
 	public static class Console
 	{
-		public static Utilities.Point CursorPosition{ get; set; }
-		public static List<Pixel[,]> renderBuffer;
 		static Console()
 		{
 			Resources.isInitialized = true;
-			CursorPosition = new Utilities.Point
-				(Console.CursorPosition.X, Console.CursorPosition.Y);
 		}
+
+		private static List<Pixel[,]> renderBuffer;
+		private static List<MyPoint> updateChunk = new List<MyPoint>();
 
 		// Uncapsulated version of "Prompt"
 		public static void Load(PrimitiveComponent component)
@@ -116,11 +116,22 @@ namespace MyGUI.Session
 
 		}
 
-		public static void Prompt(params IEntity[] entity)
+		public static void Prompt(params IEntity[] entities)
 		{
-			Resources.ActiveEntities.AddRange(entity);
+			MyPoint tempAnchor = new MyPoint(0, SConsole.CursorTop + 1);
+			Resources.ActiveEntities.AddRange(
+				entities.Select(e => {
+					e.Anchor = tempAnchor;
+					tempAnchor = new MyPoint(tempAnchor.X, tempAnchor.Y + e.Height);
+					return e;
+				})
+			);
 
 			Render();
+		}
+		public static void Prompt(MyPoint anchor, IEntity entity)
+		{
+
 		}
 
 		public static void Execute(string command = null)
@@ -173,7 +184,7 @@ namespace MyGUI.Session
 
 		private static bool ExecuteConsoleKey()
 		{
-			ConsoleKeyInfo key = System.Console.ReadKey();
+			ConsoleKeyInfo key = SConsole.ReadKey();
 			var entity = Resources.ActiveEntities.GetFocusing();
 			if (entity == null)
 			{
@@ -218,12 +229,26 @@ namespace MyGUI.Session
 		}
 		private static void Render()
 		{
+			AbstractCollection<IEntity> entityList = Resources.ActiveEntities;
+			for (int i = 0; i < entityList.Count; i++)
+			{
+				IEntity e = entityList[i];
+				updateChunk.AddRange(
+					e.UpdateChunks.Select(
+						p => new MyPoint(
+							p.X + e.Anchor.X, 
+							p.Y + e.Anchor.Y
+						)
+					)
+				);
+			}
 
+			Dictionary<MyPoint, Pixel> updatePixelBuffer = new Dictionary<MyPoint, Pixel>();
 		}
 
 		internal static class Parser
 		{
-			public static List<object> parse()
+			public static List<object> Parse()
 			{
 				throw new NotImplementedException();
 			}

@@ -1,10 +1,8 @@
 ﻿#define Test
 
-using System;
 using MyGUI;
+using Console = System.Console;
 using MyGUIConsole = MyGUI.Session.Console;
-using MyGUI.Utilities;
-using System.Threading;
 
 namespace Example
 {
@@ -19,6 +17,7 @@ namespace Example
 					new ListItem("Name2", "v2")
 				)
 			);*/
+			MyGUIConsole.Prompt(new CheckBox("Test"));
 			MyGUIConsole.Execute();
 #elif true
 			MyGUI.Session.Resources.ConsoleCommand = args;

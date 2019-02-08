@@ -18,6 +18,7 @@ namespace MyGUI
 		{
 			Height = height;
 			Width = width;
+			SetParent(parent);
 			Value = caption;
 			Name = name ?? caption;
 			initRenderBuffer();
@@ -59,7 +60,7 @@ namespace MyGUI
 
 		public override Pixel[,] GetRenderBuffer()
 		{
-			throw new NotImplementedException();
+			return renderBuffer;
 		}
 		private void initRenderBuffer()
 		{

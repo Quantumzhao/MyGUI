@@ -4,15 +4,18 @@ using System.Linq;
 using System.Text;
 using MyGUI.Session;
 using MyGUI.Utilities;
+using Newtonsoft.Json.Linq;
 using static MyGUI.Session.Settings.Appearance.ComponentStyle;
 using static MyGUI.Session.Settings.Appearance.ComponentStyle.SeparatorStyle;
 using static MyGUI.Session.Settings.Console;
 using static MyGUI.Session.Console;
 using static MyGUI.Session.Resources;
+using CustomizedFunction;
+using System.IO;
 
 namespace MyGUI
 {
-	class CheckBox : PrimitiveComponent, IValue<bool>
+	public class CheckBox : PrimitiveComponent, IValue<bool>
 	{
 		public CheckBox(int height, int width, bool isChecked, string caption, string name = null)
 		{
@@ -21,6 +24,7 @@ namespace MyGUI
 			Value = isChecked;
 
 			LabelComponent = new Label(height, width - 2, this, caption, name ?? caption);
+			LabelComponent.Anchor = new Point(2, 0);
 
 			Name = name;
 			initRenderBuffer();
@@ -53,7 +57,40 @@ namespace MyGUI
 		}
 
 		public event Action<bool> OnValueChanged;
-		
+
+		private Focus focusStatus = Focus.NoFocus;
+		public override Focus FocusStatus
+		{
+			get => focusStatus;
+			set
+			{
+				if (focusStatus != value)
+				{
+					focusStatus = value;
+					switch (value)
+					{
+						case Focus.Focusing:
+							ForegroundBrush = FocusingForegroundColor;
+							BackgroundBrush = FocusingBackgroundColor;
+							break;
+						case Focus.Focused:
+							ForegroundBrush = FocusedForegroundColor;
+							BackgroundBrush = FocusedBackgroundColor;
+							break;
+						case Focus.NoFocus:
+							ForegroundBrush = DefaultForegroundColor;
+							BackgroundBrush = DefaultBackgroundColor;
+							break;
+						case Focus.Selected:
+							ForegroundBrush = SelectedForegroundColor;
+							BackgroundBrush = SelectedBackgroundColor;
+							break;
+					}
+					UpdateRenderBuffer();
+				}
+			}
+		}
+
 		private Pixel[,] renderBuffer;
 		private void initRenderBuffer()
 		{
@@ -63,7 +100,7 @@ namespace MyGUI
 			{
 				for (int i = 0; i < Width; i++)
 				{
-					renderBuffer[i, j] = new Pixel();
+					renderBuffer[i, j] = new Pixel(' ', ForegroundBrush, BackgroundBrush);
 				}
 			}
 			UpdateRenderBuffer();
@@ -74,10 +111,40 @@ namespace MyGUI
 		}
 		public override void UpdateRenderBuffer()
 		{
-
+			var renderBufferRef = LabelComponent.GetRenderBuffer();
+			var x = LabelComponent.Anchor.X;
+			var y = LabelComponent.Anchor.Y;
+			for (int j = 0; j < LabelComponent.Height; j++)
+			{
+				for (int i = 0; i < LabelComponent.Width; i++)
+				{
+					renderBuffer[i + x, j + y].Character = renderBufferRef[i, j].Character;
+				}
+			}
+			UpdateChunks.AddRange(LabelComponent.UpdateChunks.Select(p => new Point(p.X + x, p.Y + y)));
 
 			renderBuffer[0, 0].Character = value ? Checked : Unchecked;
 			UpdateChunks.Add(new Point(0, 0));
+			UpdateChunks.RemoveDuplicate();
+		}
+
+		public override bool ParseAndExecute(ConsoleKeyInfo key)
+		{
+			switch (key.Key)
+			{
+				case ConsoleKey.Enter:
+					value = !value;
+					break;
+
+				case ConsoleKey.Escape:
+					FocusStatus = Focus.NoFocus;
+					break;
+
+				default:
+					return false;
+			}
+
+			return true;
 		}
 	}
 }

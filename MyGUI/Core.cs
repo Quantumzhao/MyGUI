@@ -1,9 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using CustomizedFunction;
 using Newtonsoft.Json.Linq;
-using System.IO;
+using System.Collections.Generic;
+using static MyGUI.Session.Settings.Console;
+
 
 namespace MyGUI.Utilities
 {
@@ -193,7 +195,7 @@ namespace MyGUI.Utilities
 
 		public string Name { get; set; }
 
-		public List<Point> UpdateChunks { get; set; }
+		public List<Point> UpdateChunks { get; set; } = new List<Point>();
 
 		protected IEntity parent = null;
 		public T GetParent<T>()
@@ -222,6 +224,8 @@ namespace MyGUI.Utilities
 		//public EntityCollection<Component> internalComponentCollection { get; set; }
 
 		public virtual Focus FocusStatus { get; set; }
+		protected ConsoleColor ForegroundBrush = DefaultForegroundColor;
+		protected ConsoleColor BackgroundBrush = DefaultBackgroundColor;
 
 		public abstract Pixel[,] GetRenderBuffer();
 
