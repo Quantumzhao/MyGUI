@@ -66,11 +66,6 @@ namespace MyGUI.Session
 
 				public static class SeparatorStyle
 				{
-					static SeparatorStyle()
-					{
-
-					}
-
 					public static readonly char UpperLeft = '┌';
 					public static readonly char LowerLeft = '└';
 					public static readonly char UpperRight = '┐';
@@ -102,9 +97,13 @@ namespace MyGUI.Session
 
 	public static class Console
 	{
+		public static Utilities.Point CursorPosition{ get; set; }
+		public static List<Pixel[,]> renderBuffer;
 		static Console()
 		{
 			Resources.isInitialized = true;
+			CursorPosition = new Utilities.Point
+				(Console.CursorPosition.X, Console.CursorPosition.Y);
 		}
 
 		// Uncapsulated version of "Prompt"
@@ -117,11 +116,11 @@ namespace MyGUI.Session
 
 		}
 
-		public static string Prompt(params IEntity[] entity)
+		public static void Prompt(params IEntity[] entity)
 		{
 			Resources.ActiveEntities.AddRange(entity);
 
-			throw new NotImplementedException();
+			Render();
 		}
 
 		public static void Execute(string command = null)
@@ -217,10 +216,17 @@ namespace MyGUI.Session
 		{
 
 		}
+		private static void Render()
+		{
+
+		}
 
 		internal static class Parser
 		{
-			
+			public static List<object> parse()
+			{
+				throw new NotImplementedException();
+			}
 		}
 	}
 }

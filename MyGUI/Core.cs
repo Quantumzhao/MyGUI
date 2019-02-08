@@ -289,6 +289,25 @@ namespace MyGUI.Utilities
 		public abstract void UpdateRenderBuffer();
 	}
 
+	class Group<TItem> : Container<TItem> where TItem : IEntity
+	{
+		
+		public override Pixel[,] GetRenderBuffer()
+		{
+			throw new NotImplementedException();
+		}
+
+		public override bool ParseAndExecute(ConsoleKeyInfo key)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void UpdateRenderBuffer()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
 	class JsonHelper : IDisposable
 	{
 		string filepath;
