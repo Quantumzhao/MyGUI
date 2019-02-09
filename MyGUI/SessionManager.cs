@@ -243,13 +243,76 @@ namespace MyGUI.Session
 				);
 			}
 
-			Dictionary<MyPoint, Pixel> updatePixelBuffer = new Dictionary<MyPoint, Pixel>();
+			Pixel[] updatePixelBuffer = new Pixel[updateChunk.Count];
+			for (int i = 0; i < updateChunk.Count; i++)
+			{
+				MyPoint p = updateChunk[i];
+				AbstractCollection<IEntity> e = Resources.ActiveEntities;
+				for (int j = 0; j < e.Count; j++)
+				{
+					if (p.X >= e[i].Anchor.X && p.X < e[i].Width + e[i].Anchor.X && 
+						p.Y >= e[i].Anchor.Y && p.Y < e[i].Height + e[i].Anchor.Y )
+					{
+
+					}
+				}
+			}
 		}
 
 		internal static class Parser
 		{
 			public static List<object> Parse()
 			{
+				List<object> result;
+				if (tryLiteralString(out result)) return result;
+				else if (tryShellCommand(out result)) return result;
+				else if (tryCSharpScript(out result)) return result;
+				else throw new InvalidOperationException("Please Check Your Command");
+
+				throw new NotImplementedException();
+			}
+
+			private static bool tryCSharpScript(out List<object> result)
+			{
+				try
+				{
+
+				}
+				catch
+				{
+					result = null;
+					return false;
+				}
+
+				throw new NotImplementedException();
+			}
+
+			private static bool tryLiteralString(out List<object> result)
+			{
+				try
+				{
+
+				}
+				catch
+				{
+					result = null;
+					return false;
+				}
+
+				throw new NotImplementedException();
+			}
+			private static bool tryShellCommand(out List<object> result)
+			{
+				try
+				{
+
+				}
+				catch
+				{
+					result = null;
+					return false;
+				}
+
 				throw new NotImplementedException();
 			}
 		}

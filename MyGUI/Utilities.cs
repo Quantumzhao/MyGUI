@@ -45,19 +45,4 @@ namespace MyGUI.Utilities
 		NoFocus,
 		Selected
 	}
-
-	public enum BoarderCharPos
-	{
-		UpperLeft,
-		LowerLeft,
-		UpperRight,
-		LowerRight,
-		Horizontal,
-		Vertical,
-		T,
-		T_UpSideDown,
-		T_AntiClockwise90,
-		T_Clockwise90,
-		Cross
-	}
 }
