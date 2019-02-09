@@ -101,8 +101,10 @@ namespace MyGUI.Session
 		static Console()
 		{
 			Resources.isInitialized = true;
+			tempAnchor = new MyPoint(0, SConsole.CursorTop + 1);
 		}
 
+		private static MyPoint tempAnchor;
 		private static List<Pixel[,]> renderBuffer;
 		private static List<MyPoint> updateChunk = new List<MyPoint>();
 
@@ -118,7 +120,6 @@ namespace MyGUI.Session
 
 		public static void Prompt(params IEntity[] entities)
 		{
-			MyPoint tempAnchor = new MyPoint(0, SConsole.CursorTop + 1);
 			Resources.ActiveEntities.AddRange(
 				entities.Select(e => {
 					e.Anchor = tempAnchor;
@@ -126,6 +127,7 @@ namespace MyGUI.Session
 					return e;
 				})
 			);
+			Resources.ActiveEntities.SetFocusing(0);
 
 			Render();
 		}
@@ -148,7 +150,12 @@ namespace MyGUI.Session
 
 		private static void Main()
 		{
-			while (ExecuteConsoleKey()) { }
+			SConsole.CursorVisible = false;
+			while (ExecuteConsoleKey())
+			{
+				Render();
+			}
+			SConsole.CursorVisible = true;
 		}
 
 		private static void SelectPrevEntity()
@@ -229,6 +236,24 @@ namespace MyGUI.Session
 		}
 		private static void Render()
 		{
+			var e = Resources.ActiveEntities;
+			for (int k = 0; k < e.Count; k++)
+			{
+				var ps = e[k].GetRenderBuffer();
+				for (int j = 0; j < ps.GetLength(1); j++)
+				{
+					for (int i = 0; i < ps.GetLength(0); i++)
+					{
+						SConsole.SetCursorPosition(i + e[k].Anchor.X, j + e[k].Anchor.Y);
+						SConsole.ForegroundColor = ps[i, j].ForegroundColor;
+						SConsole.BackgroundColor = ps[i, j].BackgroundColor;
+						SConsole.Write(ps[i, j].Character);
+					}
+				}
+			}
+		}
+		private static void RenderPartially()
+		{
 			AbstractCollection<IEntity> entityList = Resources.ActiveEntities;
 			for (int i = 0; i < entityList.Count; i++)
 			{
@@ -236,7 +261,7 @@ namespace MyGUI.Session
 				updateChunk.AddRange(
 					e.UpdateChunks.Select(
 						p => new MyPoint(
-							p.X + e.Anchor.X, 
+							p.X + e.Anchor.X,
 							p.Y + e.Anchor.Y
 						)
 					)
@@ -250,10 +275,10 @@ namespace MyGUI.Session
 				AbstractCollection<IEntity> e = Resources.ActiveEntities;
 				for (int j = 0; j < e.Count; j++)
 				{
-					if (p.X >= e[i].Anchor.X && p.X < e[i].Width + e[i].Anchor.X && 
-						p.Y >= e[i].Anchor.Y && p.Y < e[i].Height + e[i].Anchor.Y )
+					if (p.X >= e[i].Anchor.X && p.X < e[i].Width + e[i].Anchor.X &&
+						p.Y >= e[i].Anchor.Y && p.Y < e[i].Height + e[i].Anchor.Y)
 					{
-
+						//updatePixelBuffer[i] =
 					}
 				}
 			}

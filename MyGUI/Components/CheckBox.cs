@@ -36,8 +36,8 @@ namespace MyGUI
 		public const int DefaultHeight = MinHeight;
 		public const int DefaultWidth = 10;
 
-		public readonly char Checked = '■';
-		public readonly char Unchecked = '□';
+		public readonly char Checked = 'X';
+		public readonly char Unchecked = 'O';
 
 		public Label LabelComponent { get; set; }
 
@@ -119,6 +119,8 @@ namespace MyGUI
 				for (int i = 0; i < LabelComponent.Width; i++)
 				{
 					renderBuffer[i + x, j + y].Character = renderBufferRef[i, j].Character;
+					renderBuffer[i + x, j + y].ForegroundColor = ForegroundBrush;
+					renderBuffer[i + x, j + y].BackgroundColor = BackgroundBrush;
 				}
 			}
 			UpdateChunks.AddRange(LabelComponent.UpdateChunks.Select(p => new Point(p.X + x, p.Y + y)));
@@ -133,7 +135,7 @@ namespace MyGUI
 			switch (key.Key)
 			{
 				case ConsoleKey.Enter:
-					value = !value;
+					Value = !Value;
 					break;
 
 				case ConsoleKey.Escape:
