@@ -18,9 +18,9 @@ namespace Example
 					new ListItem("Name2", "v2")
 				)
 			);*/
-			Console.WriteLine("The best language in the world:");
+ 			Console.WriteLine("The best language in the world:");
 			MyGUIConsole.Prompt(
-				new CheckBox("C#"),
+				new CheckBox("C#字"),
 				new CheckBox("PHP"),
 				new CheckBox(1,17, false, "Not Javascript")
 			);

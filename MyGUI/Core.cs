@@ -147,24 +147,31 @@ namespace MyGUI.Utilities
 				element.Name = name == "" ? $"{element.GetType().ToString()}{collection.Count}" : name;
 			}
 			collection.Add(element);
-			SetFocusing(collection.Count - 1);
+			SetFocusStatus(collection.Count - 1, Focus.Focusing);
 
 			customFunction?.Invoke();
 		}
 
 		public void AddRange(IEnumerable<T> items) => collection.AddRange(items);
 
-		public T GetFocusing()
+		public T Get(Focus focusStatus)
 		{
-			return collection.Where(t => t.FocusStatus == Focus.Focusing).Single();
+			try
+			{
+				return collection.Where(t => t.FocusStatus == focusStatus).Single();
+			}
+			catch (InvalidOperationException)
+			{
+				return default(T);
+			}
 		}
-		public void SetFocusing(int index)
+		public void SetFocusStatus(int index, Focus focusStatus)
 		{
 			for (int i = 0; i < collection.Count; i++)
 			{
 				if (i == index)
 				{
-					collection[i].FocusStatus = Focus.Focusing;
+					collection[i].FocusStatus = focusStatus;
 				}
 				else
 				{
@@ -177,7 +184,14 @@ namespace MyGUI.Utilities
 		/// </summary>
 		public void SetFocusing()
 		{
-			GetFocusing().FocusStatus = Focus.Focused;
+			Get(Focus.Focusing).FocusStatus = Focus.Focused;
+		}
+		public void RemoveAllFocus()
+		{
+			foreach (var item in collection)
+			{
+				item.FocusStatus = Focus.NoFocus;
+			}
 		}
 
 		public void Remove(T element)
@@ -221,9 +235,36 @@ namespace MyGUI.Utilities
 			}
 		}
 
-		//public EntityCollection<Component> internalComponentCollection { get; set; }
+		private Focus focusStatus = Focus.NoFocus;
+		public virtual Focus FocusStatus
+		{
+			get => focusStatus;
+			set
+			{
+				if (value == Focus.Selected) value = Focus.Focusing;
+				if (focusStatus != value)
+				{
+					focusStatus = value;
+					switch (value)
+					{
+						case Focus.Focusing:
+							ForegroundBrush = FocusingForegroundColor;
+							BackgroundBrush = FocusingBackgroundColor;
+							break;
+						case Focus.Focused:
+							ForegroundBrush = FocusedForegroundColor;
+							BackgroundBrush = FocusedBackgroundColor;
+							break;
+						case Focus.NoFocus:
+							ForegroundBrush = DefaultForegroundColor;
+							BackgroundBrush = DefaultBackgroundColor;
+							break;
+					}
+					UpdateRenderBuffer();
+				}
+			}
+		}
 
-		public virtual Focus FocusStatus { get; set; }
 		protected ConsoleColor ForegroundBrush = DefaultForegroundColor;
 		protected ConsoleColor BackgroundBrush = DefaultBackgroundColor;
 
@@ -233,9 +274,25 @@ namespace MyGUI.Utilities
 		{
 			switch (key.Key)
 			{
+				case ConsoleKey.UpArrow:
+				case ConsoleKey.LeftArrow:
+					FocusStatus = Focus.NoFocus;
+					return false;
+
+				case ConsoleKey.DownArrow:
+				case ConsoleKey.RightArrow:
+					FocusStatus = Focus.NoFocus;
+					return false;
+
+				case ConsoleKey.Escape:
+					FocusStatus = Focus.NoFocus;
+					break;
+
 				default:
 					return false;
 			}
+
+			return true;
 		}
 
 		public void Dispose()

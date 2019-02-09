@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using MyGUI.Session;
 using MyGUI.Utilities;
-using Newtonsoft.Json.Linq;
-using static MyGUI.Session.Settings.Appearance.ComponentStyle;
-using static MyGUI.Session.Settings.Appearance.ComponentStyle.SeparatorStyle;
 using static MyGUI.Session.Settings.Console;
-using static MyGUI.Session.Console;
-using static MyGUI.Session.Resources;
-using CustomizedFunction;
-using System.IO;
 
 namespace MyGUI
 {
@@ -36,8 +26,8 @@ namespace MyGUI
 		public const int DefaultHeight = MinHeight;
 		public const int DefaultWidth = 10;
 
-		public readonly char Checked = 'X';
-		public readonly char Unchecked = 'O';
+		public readonly char Checked = '■';
+		public readonly char Unchecked = '□';
 
 		public Label LabelComponent { get; set; }
 
@@ -58,38 +48,38 @@ namespace MyGUI
 
 		public event Action<bool> OnValueChanged;
 
-		private Focus focusStatus = Focus.NoFocus;
-		public override Focus FocusStatus
-		{
-			get => focusStatus;
-			set
-			{
-				if (focusStatus != value)
-				{
-					focusStatus = value;
-					switch (value)
-					{
-						case Focus.Focusing:
-							ForegroundBrush = FocusingForegroundColor;
-							BackgroundBrush = FocusingBackgroundColor;
-							break;
-						case Focus.Focused:
-							ForegroundBrush = FocusedForegroundColor;
-							BackgroundBrush = FocusedBackgroundColor;
-							break;
-						case Focus.NoFocus:
-							ForegroundBrush = DefaultForegroundColor;
-							BackgroundBrush = DefaultBackgroundColor;
-							break;
-						case Focus.Selected:
-							ForegroundBrush = SelectedForegroundColor;
-							BackgroundBrush = SelectedBackgroundColor;
-							break;
-					}
-					UpdateRenderBuffer();
-				}
-			}
-		}
+		//private Focus focusStatus = Focus.NoFocus;
+		//public override Focus FocusStatus
+		//{
+		//	get => focusStatus;
+		//	set
+		//	{
+		//		if (focusStatus != value)
+		//		{
+		//			focusStatus = value;
+		//			switch (value)
+		//			{
+		//				case Focus.Focusing:
+		//					ForegroundBrush = FocusingForegroundColor;
+		//					BackgroundBrush = FocusingBackgroundColor;
+		//					break;
+		//				case Focus.Focused:
+		//					ForegroundBrush = FocusedForegroundColor;
+		//					BackgroundBrush = FocusedBackgroundColor;
+		//					break;
+		//				case Focus.NoFocus:
+		//					ForegroundBrush = DefaultForegroundColor;
+		//					BackgroundBrush = DefaultBackgroundColor;
+		//					break;
+		//				case Focus.Selected:
+		//					ForegroundBrush = SelectedForegroundColor;
+		//					BackgroundBrush = SelectedBackgroundColor;
+		//					break;
+		//			}
+		//			UpdateRenderBuffer();
+		//		}
+		//	}
+		//}
 
 		private Pixel[,] renderBuffer;
 		private void initRenderBuffer()
@@ -132,20 +122,18 @@ namespace MyGUI
 
 		public override bool ParseAndExecute(ConsoleKeyInfo key)
 		{
-			switch (key.Key)
+			if (!base.ParseAndExecute(key))
 			{
-				case ConsoleKey.Enter:
-					Value = !Value;
-					break;
+				switch (key.Key)
+				{
+					case ConsoleKey.Enter:
+						Value = !Value;
+						break;
 
-				case ConsoleKey.Escape:
-					FocusStatus = Focus.NoFocus;
-					break;
-
-				default:
-					return false;
+					default:
+						return false;
+				}
 			}
-
 			return true;
 		}
 	}

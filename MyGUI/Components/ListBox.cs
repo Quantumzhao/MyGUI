@@ -143,13 +143,13 @@ namespace MyGUI
 			private void selectUpperItem()
 			{
 				UnboxedParent.Collection.Pointer++;
-				UnboxedParent.Collection.SetFocusing(UnboxedParent.Collection.Pointer);
+				UnboxedParent.Collection.SetFocusStatus(UnboxedParent.Collection.Pointer, Focus.Selected);
 			}
 
 			private void selectLowerItem()
 			{
 				UnboxedParent.Collection.Pointer--;
-				UnboxedParent.Collection.SetFocusing(UnboxedParent.Collection.Pointer);
+				UnboxedParent.Collection.SetFocusStatus(UnboxedParent.Collection.Pointer, Focus.Selected);
 			}
 
 			public override void MoveUp()

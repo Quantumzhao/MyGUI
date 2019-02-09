@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Text;
 using System.Linq;
-using System.Collections.Generic;
 using System.Drawing;
 using MyGUI.Utilities;
 using SConsole = System.Console;
+using System.Collections.Generic;
 using MyPoint = MyGUI.Utilities.Point;
 
 namespace MyGUI.Session
@@ -17,6 +18,8 @@ namespace MyGUI.Session
 
 		// This filed is used to trigger the static constructor
 		internal static bool isInitialized = false;
+
+		internal static ConsoleColor DefaultSystemConsoleBackgroundColor = SConsole.BackgroundColor;
 
 		internal static AbstractCollection<IEntity> ActiveEntities { get; set; } = new AbstractCollection<IEntity>();
 		internal static int currentEntity;
@@ -127,9 +130,10 @@ namespace MyGUI.Session
 					return e;
 				})
 			);
-			Resources.ActiveEntities.SetFocusing(0);
+			Resources.ActiveEntities.SetFocusStatus(0, Focus.Selected);
 
-			Render();
+			SConsole.OutputEncoding = Encoding.UTF8;
+			Renderer.Render();
 		}
 		public static void Prompt(MyPoint anchor, IEntity entity)
 		{
@@ -138,34 +142,25 @@ namespace MyGUI.Session
 
 		public static void Execute(string command = null)
 		{
-			if (command == null)
-			{
-				Main();
-			}
-			else
-			{
-				ExecuteCommand(command);
-			}
+			SConsole.CursorVisible = false;
+
+			if (command == null) Main();
+			else ExecuteCommand(command);
+
+			SConsole.CursorVisible = true;
 		}
 
 		private static void Main()
 		{
-			SConsole.CursorVisible = false;
 			while (ExecuteConsoleKey())
-			{
-				Render();
-			}
-			SConsole.CursorVisible = true;
+				Renderer.Render();
 		}
 
-		private static void SelectPrevEntity()
+		private static void SelectEntity(int posReletiveToPointer)
 		{
-			Resources.ActiveEntities.Pointer--;
-		}
-
-		private static void SelectNextEntity()
-		{
-			Resources.ActiveEntities.Pointer++;
+			var e = Resources.ActiveEntities;
+			e.Pointer += posReletiveToPointer;
+			e.SetFocusStatus(e.Pointer, Focus.Selected);
 		}
 
 		public static string GetUserInput()
@@ -181,7 +176,7 @@ namespace MyGUI.Session
 
 		private static void FocusingOnCurrentEntity()
 		{
-			Resources.ActiveEntities.SetFocusing(Resources.ActiveEntities.Pointer);
+			Resources.ActiveEntities.SetFocusStatus(Resources.ActiveEntities.Pointer, Focus.Focusing);
 		}
 
 		private static void ExecuteCommand(string command)
@@ -191,20 +186,24 @@ namespace MyGUI.Session
 
 		private static bool ExecuteConsoleKey()
 		{
+			SConsole.SetCursorPosition(SConsole.BufferWidth - 1, 0);
+			SConsole.ForegroundColor = Resources.DefaultSystemConsoleBackgroundColor;
+			SConsole.BackgroundColor = Resources.DefaultSystemConsoleBackgroundColor;
+
 			ConsoleKeyInfo key = SConsole.ReadKey();
-			var entity = Resources.ActiveEntities.GetFocusing();
-			if (entity == null)
+			var entity = Resources.ActiveEntities.Get(Focus.Focusing);
+			if (entity == null || !entity.ParseAndExecute(key))
 			{
 				switch (key.Key)
 				{
 					case ConsoleKey.UpArrow:
 					case ConsoleKey.LeftArrow:
-						SelectPrevEntity();
+						SelectEntity(-1);
 						break;
 
 					case ConsoleKey.DownArrow:
 					case ConsoleKey.RightArrow:
-						SelectNextEntity();
+						SelectEntity(1);
 						break;
 
 					case ConsoleKey.Enter:
@@ -212,78 +211,74 @@ namespace MyGUI.Session
 						break;
 
 					case ConsoleKey.Escape:
+						Resources.ActiveEntities.RemoveAllFocus();
 						return false;
 
 					default:
 						break;
 				}
 			}
-			else if (!entity.ParseAndExecute(key))
-			{
-
-			}
-			else
-			{
-
-			}
 
 			return true;
 		}
 
-		private static void Render(PrimitiveComponent component)
+		private static class Renderer
 		{
-
-		}
-		private static void Render()
-		{
-			var e = Resources.ActiveEntities;
-			for (int k = 0; k < e.Count; k++)
+			public static void Render(PrimitiveComponent component)
 			{
-				var ps = e[k].GetRenderBuffer();
-				for (int j = 0; j < ps.GetLength(1); j++)
+
+			}
+			public static void Render()
+			{
+				var e = Resources.ActiveEntities;
+				for (int k = 0; k < e.Count; k++)
 				{
-					for (int i = 0; i < ps.GetLength(0); i++)
+					var ps = e[k].GetRenderBuffer();
+					for (int j = 0; j < ps.GetLength(1); j++)
 					{
-						SConsole.SetCursorPosition(i + e[k].Anchor.X, j + e[k].Anchor.Y);
-						SConsole.ForegroundColor = ps[i, j].ForegroundColor;
-						SConsole.BackgroundColor = ps[i, j].BackgroundColor;
-						SConsole.Write(ps[i, j].Character);
+						for (int i = 0; i < ps.GetLength(0); i++)
+						{
+							SConsole.SetCursorPosition(i + e[k].Anchor.X, j + e[k].Anchor.Y);
+							SConsole.ForegroundColor = ps[i, j].ForegroundColor;
+							SConsole.BackgroundColor = ps[i, j].BackgroundColor;
+							SConsole.Write(ps[i, j].Character);
+						}
 					}
 				}
 			}
-		}
-		private static void RenderPartially()
-		{
-			AbstractCollection<IEntity> entityList = Resources.ActiveEntities;
-			for (int i = 0; i < entityList.Count; i++)
+			private static void RenderPartially()
 			{
-				IEntity e = entityList[i];
-				updateChunk.AddRange(
-					e.UpdateChunks.Select(
-						p => new MyPoint(
-							p.X + e.Anchor.X,
-							p.Y + e.Anchor.Y
+				AbstractCollection<IEntity> entityList = Resources.ActiveEntities;
+				for (int i = 0; i < entityList.Count; i++)
+				{
+					IEntity e = entityList[i];
+					updateChunk.AddRange(
+						e.UpdateChunks.Select(
+							p => new MyPoint(
+								p.X + e.Anchor.X,
+								p.Y + e.Anchor.Y
+							)
 						)
-					)
-				);
-			}
+					);
+				}
 
-			Pixel[] updatePixelBuffer = new Pixel[updateChunk.Count];
-			for (int i = 0; i < updateChunk.Count; i++)
-			{
-				MyPoint p = updateChunk[i];
-				AbstractCollection<IEntity> e = Resources.ActiveEntities;
-				for (int j = 0; j < e.Count; j++)
+				Pixel[] updatePixelBuffer = new Pixel[updateChunk.Count];
+				for (int i = 0; i < updateChunk.Count; i++)
 				{
-					if (p.X >= e[i].Anchor.X && p.X < e[i].Width + e[i].Anchor.X &&
-						p.Y >= e[i].Anchor.Y && p.Y < e[i].Height + e[i].Anchor.Y)
+					MyPoint p = updateChunk[i];
+					AbstractCollection<IEntity> e = Resources.ActiveEntities;
+					for (int j = 0; j < e.Count; j++)
 					{
-						//updatePixelBuffer[i] =
+						if (p.X >= e[i].Anchor.X && p.X < e[i].Width + e[i].Anchor.X &&
+							p.Y >= e[i].Anchor.Y && p.Y < e[i].Height + e[i].Anchor.Y)
+						{
+							//updatePixelBuffer[i] =
+						}
 					}
 				}
 			}
 		}
-
+		
 		internal static class Parser
 		{
 			public static List<object> Parse()
