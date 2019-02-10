@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using MyGUI.Session;
 using CustomizedFunction;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using static MyGUI.Session.Settings.Console;
-
 
 namespace MyGUI.Utilities
 {
@@ -277,22 +277,22 @@ namespace MyGUI.Utilities
 				case ConsoleKey.UpArrow:
 				case ConsoleKey.LeftArrow:
 					FocusStatus = Focus.NoFocus;
-					return false;
+					break;
 
 				case ConsoleKey.DownArrow:
 				case ConsoleKey.RightArrow:
 					FocusStatus = Focus.NoFocus;
-					return false;
+					break;
 
 				case ConsoleKey.Escape:
 					FocusStatus = Focus.NoFocus;
 					break;
 
 				default:
-					return false;
+					break;
 			}
 
-			return true;
+			return false;
 		}
 
 		public void Dispose()
@@ -350,25 +350,6 @@ namespace MyGUI.Utilities
 		public abstract void UpdateRenderBuffer();
 	}
 
-	class Group<TItem> : Container<TItem> where TItem : IEntity
-	{
-		
-		public override Pixel[,] GetRenderBuffer()
-		{
-			throw new NotImplementedException();
-		}
-
-		public override bool ParseAndExecute(ConsoleKeyInfo key)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override void UpdateRenderBuffer()
-		{
-			throw new NotImplementedException();
-		}
-	}
-
 	class JsonHelper : IDisposable
 	{
 		string filepath;
@@ -415,5 +396,25 @@ namespace MyGUI.Utilities
 		public virtual void MoveDown() { }
 		public virtual void MoveLeft() { }
 		public virtual void MoveRight() { }
+	}
+
+	public abstract class PrimitiveComponentWithValue<T> : PrimitiveComponent, IValue<T>
+	{
+		public abstract T Value { get; set; }
+
+		public virtual event Action<T> OnValueChanged;
+	}
+
+	public abstract class Switch : PrimitiveComponentWithValue<bool>
+	{
+		public const int MinHeight = 1;
+		public const int MinWidth = 6;
+		public const int DefaultHeight = MinHeight;
+		public const int DefaultWidth = 10;
+
+		public virtual char Checked { get; protected set; }
+		public virtual char Unchecked { get; protected set; }
+
+		public Label LabelComponent { get; set; }
 	}
 }

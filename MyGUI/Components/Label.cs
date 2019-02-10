@@ -42,7 +42,19 @@ namespace MyGUI
 			}
 		}
 
-		public string Value { get; set; }
+		private string value;
+		public string Value
+		{
+			get => value;
+			set
+			{
+				if (value != this.value)
+				{
+					this.value = value;
+					OnValueChanged?.Invoke(value);
+				}
+			}
+		}
 		public bool IsWordWrap { get; set; } = false;
 
 		private Pixel[,] renderBuffer;

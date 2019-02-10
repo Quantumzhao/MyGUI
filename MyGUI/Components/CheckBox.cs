@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 using MyGUI.Utilities;
-using static MyGUI.Session.Settings.Console;
+using MyGUI.Session;
 
 namespace MyGUI
 {
-	public class CheckBox : PrimitiveComponent, IValue<bool>
+	public class CheckBox : Switch
 	{
 		public CheckBox(int height, int width, bool isChecked, string caption, string name = null)
 		{
@@ -21,18 +22,11 @@ namespace MyGUI
 		}
 		public CheckBox(string caption) : this(DefaultHeight, DefaultWidth, false, caption, caption) { }
 
-		public const int MinHeight = 1;
-		public const int MinWidth = 6;
-		public const int DefaultHeight = MinHeight;
-		public const int DefaultWidth = 10;
-
-		public readonly char Checked = '■';
-		public readonly char Unchecked = '□';
-
-		public Label LabelComponent { get; set; }
+		public override char Checked { get; protected set; } = '■';
+		public override char Unchecked { get; protected set; } = '□';
 
 		private bool value;
-		public bool Value
+		public override bool Value
 		{
 			get => value;
 			set
@@ -40,46 +34,14 @@ namespace MyGUI
 				if (value != this.value)
 				{
 					this.value = value;
+					Resources.ReturnValueCache = Value.ToString();
 					OnValueChanged?.Invoke(value);
 					UpdateRenderBuffer();
 				}
 			}
 		}
 
-		public event Action<bool> OnValueChanged;
-
-		//private Focus focusStatus = Focus.NoFocus;
-		//public override Focus FocusStatus
-		//{
-		//	get => focusStatus;
-		//	set
-		//	{
-		//		if (focusStatus != value)
-		//		{
-		//			focusStatus = value;
-		//			switch (value)
-		//			{
-		//				case Focus.Focusing:
-		//					ForegroundBrush = FocusingForegroundColor;
-		//					BackgroundBrush = FocusingBackgroundColor;
-		//					break;
-		//				case Focus.Focused:
-		//					ForegroundBrush = FocusedForegroundColor;
-		//					BackgroundBrush = FocusedBackgroundColor;
-		//					break;
-		//				case Focus.NoFocus:
-		//					ForegroundBrush = DefaultForegroundColor;
-		//					BackgroundBrush = DefaultBackgroundColor;
-		//					break;
-		//				case Focus.Selected:
-		//					ForegroundBrush = SelectedForegroundColor;
-		//					BackgroundBrush = SelectedBackgroundColor;
-		//					break;
-		//			}
-		//			UpdateRenderBuffer();
-		//		}
-		//	}
-		//}
+		public new event Action<bool> OnValueChanged;
 
 		private Pixel[,] renderBuffer;
 		private void initRenderBuffer()

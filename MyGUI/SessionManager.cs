@@ -20,11 +20,12 @@ namespace MyGUI.Session
 		internal static bool isInitialized = false;
 
 		internal static ConsoleColor DefaultSystemConsoleBackgroundColor = SConsole.BackgroundColor;
+		internal static ConsoleColor DefaultSystemConsoleForegroundColor = SConsole.ForegroundColor;
 
 		internal static AbstractCollection<IEntity> ActiveEntities { get; set; } = new AbstractCollection<IEntity>();
-		internal static int currentEntity;
 		
 		public static string ReturnValueCache { get; internal set; } = null;
+		public static IEnumerable<string> ReturnValueListCache { get; internal set; } = null;
 
 		public static string[] ConsoleCommand { get; set; }
 	}
@@ -108,7 +109,6 @@ namespace MyGUI.Session
 		}
 
 		private static MyPoint tempAnchor;
-		private static List<Pixel[,]> renderBuffer;
 		private static List<MyPoint> updateChunk = new List<MyPoint>();
 
 		// Uncapsulated version of "Prompt"
@@ -142,18 +142,30 @@ namespace MyGUI.Session
 
 		public static void Execute(string command = null)
 		{
-			SConsole.CursorVisible = false;
+			initialize();
 
 			if (command == null) Main();
 			else ExecuteCommand(command);
 
+			finalize();
+
+		}
+		private static void initialize()
+		{
+			SConsole.CursorVisible = false;
+		}
+		private static void finalize()
+		{
 			SConsole.CursorVisible = true;
+			SConsole.ForegroundColor = Resources.DefaultSystemConsoleForegroundColor;
+			SConsole.BackgroundColor = Resources.DefaultSystemConsoleBackgroundColor;
+			SConsole.SetCursorPosition(0, tempAnchor.Y);
 		}
 
 		private static void Main()
 		{
-			while (ExecuteConsoleKey())
-				Renderer.Render();
+			while (ExecuteConsoleKey()) Renderer.Render();
+			Renderer.Render();
 		}
 
 		private static void SelectEntity(int posReletiveToPointer)
@@ -165,8 +177,6 @@ namespace MyGUI.Session
 
 		public static string GetUserInput()
 		{
-			Main();
-
 			return Resources.ReturnValueCache;
 		}
 		public static T GetUserInput<T>()
