@@ -21,6 +21,7 @@ namespace MyGUI
 			Name = name;
 			LabelComponent = new Label(1, Width - 2, this, caption, caption);
 			LabelComponent.Anchor = new Point(1, 1);
+			OnClick += onClick;
 			initRenderBuffer();
 		}
 
@@ -53,7 +54,7 @@ namespace MyGUI
 			}
 			renderBuffer[0, 0].Character = UpperLeft;
 			renderBuffer[Width - 1, 0].Character = UpperRight;
-			renderBuffer[Height - 1, 0].Character = LowerLeft;
+			renderBuffer[0, Height - 1].Character = LowerLeft;
 			renderBuffer[Width - 1, Height - 1].Character = LowerRight;
 			UpdateRenderBuffer();
 		}
@@ -71,8 +72,14 @@ namespace MyGUI
 				for (int i = 0; i < LabelComponent.Width; i++)
 				{
 					renderBuffer[i + x, j + y].Character = renderBufferRef[i, j].Character;
-					renderBuffer[i + x, j + y].ForegroundColor = ForegroundBrush;
-					renderBuffer[i + x, j + y].BackgroundColor = BackgroundBrush;
+				}
+			}
+			for (int j = 0; j < Height; j++)
+			{
+				for (int i = 0; i < Width; i++)
+				{
+					renderBuffer[i, j].ForegroundColor = ForegroundBrush;
+					renderBuffer[i, j].BackgroundColor = BackgroundBrush;
 				}
 			}
 		}
