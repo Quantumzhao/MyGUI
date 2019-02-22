@@ -1,4 +1,5 @@
 ﻿using System;
+using MyGUI.Utilities;
 using System.Collections.Generic;
 
 namespace MyGUI.Utilities
@@ -44,5 +45,20 @@ namespace MyGUI.Utilities
 		Focused,
 		NoFocus,
 		Selected
+	}
+}
+
+namespace MyGUI
+{
+	public class Resource
+	{
+		public static T GetComponent<T>(string name) where T : IEntity
+		{
+			return (T)Session.Resources.ActiveEntities[name];
+		}
+		public static T GetComponent<T>(int index) where T : IEntity
+		{
+			return (T)Session.Resources.ActiveEntities[index];
+		}
 	}
 }

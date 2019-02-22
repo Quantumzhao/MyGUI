@@ -4,8 +4,11 @@ using System.Linq;
 using MyGUI.Session;
 using CustomizedFunction;
 using Newtonsoft.Json.Linq;
+using SConsole = System.Console;
 using System.Collections.Generic;
+using MyConsole = MyGUI.Session.Console;
 using static MyGUI.Session.Settings.Console;
+using System.Collections;
 
 namespace MyGUI.Utilities
 {
@@ -69,64 +72,33 @@ namespace MyGUI.Utilities
 		public override int GetHashCode() => base.GetHashCode();
 	}
 
-	public class AbstractCollection<T> where T : INameable, IFocusable
+	public class AbstractCollection<T> : List<T> where T : INameable, IFocusable
 	{
 		public AbstractCollection(CustomFunctionBuilder more_AddElement_Behavior = null)
 		{
 			customFunction = more_AddElement_Behavior;
 		}
 
-		protected List<T> collection = new List<T>();
-
 		private CustomFunctionBuilder customFunction;
-
-		public T this[int index]
-		{
-			get
-			{
-				try
-				{
-					return collection[index];
-				}
-				catch (IndexOutOfRangeException e)
-				{
-					throw e;
-				}
-			}
-
-			set
-			{
-				try
-				{
-					collection[index] = value;
-				}
-				catch (IndexOutOfRangeException e)
-				{
-					throw e;
-				}
-			}
-		}
 
 		public T this[string name]
 		{
 			get
 			{
-				return collection.Where(t => t.Name == name).Single();
+				return this.Where(t => t.Name == name).Single();
 			}
 
 			set
 			{
-				for (int i = 0; i < collection.Count; i++)
+				for (int i = 0; i < Count; i++)
 				{
-					if (collection[i].Name.Equals(name))
+					if (this[i].Name.Equals(name))
 					{
-						collection[i] = value;
+						this[i] = value;
 					}
 				}
 			}
 		}
-
-		public int Count => collection.Count;
 
 		private int pointer;
 		public int Pointer
@@ -134,8 +106,8 @@ namespace MyGUI.Utilities
 			get => pointer;
 			set
 			{
-				if (value < 0) pointer = collection.Count - 1;
-				else if (value >= collection.Count) pointer = 0;
+				if (value < 0) pointer = Count - 1;
+				else if (value >= Count) pointer = 0;
 				else pointer = value;
 			}
 		}
@@ -144,21 +116,19 @@ namespace MyGUI.Utilities
 		{
 			if (element.Name == "")
 			{
-				element.Name = name == "" ? $"{element.GetType().ToString()}{collection.Count}" : name;
+				element.Name = name == "" ? $"{element.GetType().ToString()}{Count}" : name;
 			}
-			collection.Add(element);
-			SetFocusStatus(collection.Count - 1, Focus.Focusing);
+			Add(element);
+			SetFocusStatus(Count - 1, Focus.Focusing);
 
 			customFunction?.Invoke();
 		}
-
-		public void AddRange(IEnumerable<T> items) => collection.AddRange(items);
 
 		public T Get(Focus focusStatus)
 		{
 			try
 			{
-				return collection.Where(t => t.FocusStatus == focusStatus).Single();
+				return this.Where(t => t.FocusStatus == focusStatus).Single();
 			}
 			catch (InvalidOperationException)
 			{
@@ -167,15 +137,15 @@ namespace MyGUI.Utilities
 		}
 		public void SetFocusStatus(int index, Focus focusStatus)
 		{
-			for (int i = 0; i < collection.Count; i++)
+			for (int i = 0; i < Count; i++)
 			{
 				if (i == index)
 				{
-					collection[i].FocusStatus = focusStatus;
+					this[i].FocusStatus = focusStatus;
 				}
 				else
 				{
-					collection[i].FocusStatus = Focus.NoFocus;
+					this[i].FocusStatus = Focus.NoFocus;
 				}
 			}
 		}
@@ -188,15 +158,10 @@ namespace MyGUI.Utilities
 		}
 		public void RemoveAllFocus()
 		{
-			foreach (var item in collection)
+			foreach (var item in this)
 			{
 				item.FocusStatus = Focus.NoFocus;
 			}
-		}
-
-		public void Remove(T element)
-		{
-			collection.Remove(element);
 		}
 	}
 
@@ -303,7 +268,7 @@ namespace MyGUI.Utilities
 		public abstract void UpdateRenderBuffer();
 	}
 
-	public abstract class Container<TItem> : IEntity where TItem : INameable, IFocusable, IVisible
+	public abstract class Container<TItem> : IEntity where TItem : IEntity
 	{
 		public Point Anchor { get; set; }
 		public virtual int Width { get; set; }
@@ -315,8 +280,6 @@ namespace MyGUI.Utilities
 		public abstract Pixel[,] GetRenderBuffer();
 
 		public List<Point> UpdateChunks { get; set; }
-
-		public abstract bool ParseAndExecute(ConsoleKeyInfo key);
 
 		private IEntity parent;
 		public T GetParent<T>()
@@ -342,9 +305,47 @@ namespace MyGUI.Utilities
 			}
 		}
 
+		public virtual bool ParseAndExecute(ConsoleKeyInfo key)
+		{
+			var entity = Collection.Get(Focus.Focusing);
+			if (entity == null || !entity.ParseAndExecute(key))
+			{
+				switch (key.Key)
+				{
+					case ConsoleKey.UpArrow:
+					case ConsoleKey.LeftArrow:
+						SelectEntity(-1);
+						break;
+
+					case ConsoleKey.DownArrow:
+					case ConsoleKey.RightArrow:
+						SelectEntity(1);
+						break;
+
+					case ConsoleKey.Enter:
+						Collection.SetFocusStatus(Collection.Pointer, Focus.Focusing);
+						break;
+
+					case ConsoleKey.Escape:
+						Resources.ActiveEntities.RemoveAllFocus();
+						return false;
+
+					default:
+						break;
+				}
+			}
+
+			return true;
+		}
+		private void SelectEntity(int posReletiveToPointer)
+		{
+			Collection.Pointer += posReletiveToPointer;
+			Collection.SetFocusStatus(Collection.Pointer, Focus.Selected);
+		}
+
 		public void Dispose()
 		{
-			Session.Resources.ActiveEntities.Remove(this);
+			Resources.ActiveEntities.Remove(this);
 		}
 
 		public abstract void UpdateRenderBuffer();
@@ -385,6 +386,26 @@ namespace MyGUI.Utilities
 			for (int i = 0; i < points.Count; i++)
 				for (int j = 0; j < i; j++)
 					if (points[i] == points[j]) points.RemoveAt(i--);
+		}
+
+		public static void Render(this IEntity entity)
+		{
+			var ps = entity.GetRenderBuffer();
+			for (int j = 0; j < ps.GetLength(1); j++)
+			{
+				for (int i = 0; i < ps.GetLength(0); i++)
+				{
+					SConsole.SetCursorPosition(i + entity.Anchor.X, j + entity.Anchor.Y);
+					SConsole.ForegroundColor = ps[i, j].ForegroundColor;
+					SConsole.BackgroundColor = ps[i, j].BackgroundColor;
+					SConsole.Write(ps[i, j].Character);
+				}
+			}
+
+			SConsole.CursorVisible = true;
+			SConsole.ForegroundColor = Resources.DefaultSystemConsoleForegroundColor;
+			SConsole.BackgroundColor = Resources.DefaultSystemConsoleBackgroundColor;
+			SConsole.SetCursorPosition(0, MyConsole.tempAnchor.Y);
 		}
 	}
 

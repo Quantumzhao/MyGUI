@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MyGUI.Session;
 using MyGUI.Utilities;
-using static MyGUI.Session.Settings.Appearance.ComponentStyle;
-using static MyGUI.Session.Settings.Appearance.ComponentStyle.SeparatorStyle;
+using System.Threading;
 using static MyGUI.Session.Settings.Console;
-using static MyGUI.Session.Console;
-using static MyGUI.Session.Resources;
+using static MyGUI.Session.Settings.Appearance.ComponentStyle.SeparatorStyle;
 
 namespace MyGUI
 {
@@ -21,6 +15,7 @@ namespace MyGUI
 			Name = name;
 			LabelComponent = new Label(1, Width - 2, this, caption, caption);
 			LabelComponent.Anchor = new Point(1, 1);
+			OnClick += OnClickAnimation;
 			OnClick += onClick;
 			initRenderBuffer();
 		}
@@ -82,6 +77,19 @@ namespace MyGUI
 					renderBuffer[i, j].BackgroundColor = BackgroundBrush;
 				}
 			}
+		}
+
+		public void OnClickAnimation()
+		{
+			ForegroundBrush = ConsoleColor.White;
+			BackgroundBrush = ConsoleColor.Cyan;
+			UpdateRenderBuffer();
+			this.Render();
+			Thread.Sleep(100);
+			ForegroundBrush = FocusingForegroundColor;
+			BackgroundBrush = FocusingBackgroundColor;
+			UpdateRenderBuffer();
+			this.Render();
 		}
 
 		public override bool ParseAndExecute(ConsoleKeyInfo key)

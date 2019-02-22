@@ -21,13 +21,21 @@ namespace MyGUI.Session
 
 		internal static ConsoleColor DefaultSystemConsoleBackgroundColor = SConsole.BackgroundColor;
 		internal static ConsoleColor DefaultSystemConsoleForegroundColor = SConsole.ForegroundColor;
+		internal static MyPoint SystemConsoleCursorPosition = new MyPoint(SConsole.CursorLeft, SConsole.CursorTop);
 
 		internal static AbstractCollection<IEntity> ActiveEntities { get; set; } = new AbstractCollection<IEntity>();
 		
 		public static string ReturnValueCache { get; internal set; } = null;
 		public static IEnumerable<string> ReturnValueListCache { get; internal set; } = null;
 
-		public static string[] ConsoleCommand { get; set; }
+		static T GetComponent<T>(string name) where T : IEntity
+		{
+			return (T)ActiveEntities[name];
+		}
+		static T GetComponent<T>(int index) where T : IEntity
+		{
+			return (T)ActiveEntities[index];
+		}
 	}
 
 	public static class Settings
@@ -47,8 +55,6 @@ namespace MyGUI.Session
 
 		// This filed is used to trigger the static constructor
 		public static bool isInitialized = false;
-
-		public static bool IsConventionalCliInterface { get; set; } = false;
 
 		public static class Appearance
 		{
@@ -108,7 +114,7 @@ namespace MyGUI.Session
 			tempAnchor = new MyPoint(0, SConsole.CursorTop + 1);
 		}
 
-		private static MyPoint tempAnchor;
+		internal static MyPoint tempAnchor;
 		private static List<MyPoint> updateChunk = new List<MyPoint>();
 
 		// Uncapsulated version of "Prompt"
@@ -130,6 +136,7 @@ namespace MyGUI.Session
 					return e;
 				})
 			);
+			Resources.SystemConsoleCursorPosition = tempAnchor;
 			Resources.ActiveEntities.SetFocusStatus(0, Focus.Selected);
 
 			SConsole.OutputEncoding = Encoding.UTF8;
@@ -145,10 +152,9 @@ namespace MyGUI.Session
 			initialize();
 
 			if (command == null) Main();
-			else ExecuteCommand(command);
+			else Main(command);
 
 			finalize();
-
 		}
 		private static void initialize()
 		{
@@ -166,6 +172,10 @@ namespace MyGUI.Session
 		{
 			while (ExecuteConsoleKey()) Renderer.Render();
 			Renderer.Render();
+		}
+		private static void Main(string command)
+		{
+			throw new NotImplementedException();
 		}
 
 		private static void SelectEntity(int posReletiveToPointer)
@@ -189,11 +199,6 @@ namespace MyGUI.Session
 			Resources.ActiveEntities.SetFocusStatus(Resources.ActiveEntities.Pointer, Focus.Focusing);
 		}
 
-		private static void ExecuteCommand(string command)
-		{
-
-		}
-
 		private static bool ExecuteConsoleKey()
 		{
 			SConsole.SetCursorPosition(SConsole.BufferWidth - 1, 0);
@@ -201,6 +206,13 @@ namespace MyGUI.Session
 			SConsole.BackgroundColor = Resources.DefaultSystemConsoleBackgroundColor;
 
 			ConsoleKeyInfo key = SConsole.ReadKey();
+
+			SConsole.ForegroundColor = Resources.DefaultSystemConsoleForegroundColor;
+			SConsole.SetCursorPosition(
+				Resources.SystemConsoleCursorPosition.X, 
+				Resources.SystemConsoleCursorPosition.Y
+			);
+
 			var entity = Resources.ActiveEntities.Get(Focus.Focusing);
 			if (entity == null || !entity.ParseAndExecute(key))
 			{
@@ -234,10 +246,6 @@ namespace MyGUI.Session
 
 		private static class Renderer
 		{
-			public static void Render(PrimitiveComponent component)
-			{
-
-			}
 			public static void Render()
 			{
 				var e = Resources.ActiveEntities;

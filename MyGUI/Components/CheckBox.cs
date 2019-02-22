@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using MyGUI.Utilities;
 using MyGUI.Session;
 

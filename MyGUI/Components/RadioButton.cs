@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using MyGUI;
 using MyGUI.Utilities;
 
 namespace MyGUI
@@ -18,10 +15,6 @@ namespace MyGUI
 				if (this.value != value)
 				{
 					this.value = value;
-					if (parent is EntangledGroup<bool>)
-					{
-						
-					}
 					OnValueChanged?.Invoke(value);
 				}
 			}
