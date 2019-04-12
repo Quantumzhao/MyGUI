@@ -29,7 +29,7 @@ namespace MyGUI
 		public ListItem(string caption, string value) : this(caption, caption, value) { }
 		public ListItem(string caption) : this(caption, caption, caption) { }
 
-		public Container<ListItem> Parent { get; set; }
+		public Group<ListItem> Parent { get; set; }
 		public Label LabelComponent { get; set; }
 
 		public string Value { get; set; }
@@ -104,6 +104,11 @@ namespace MyGUI
 
 			UpdateChunks.AddRange(LabelComponent.UpdateChunks);
 			UpdateChunks.RemoveDuplicate();
+		}
+
+		public override bool ParseAndExecute(ConsoleKeyInfo key)
+		{
+			return false;
 		}
 	}
 }

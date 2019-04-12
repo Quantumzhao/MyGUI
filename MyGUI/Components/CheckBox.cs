@@ -83,17 +83,14 @@ namespace MyGUI
 
 		public override bool ParseAndExecute(ConsoleKeyInfo key)
 		{
-			if (!base.ParseAndExecute(key))
+			switch (key.Key)
 			{
-				switch (key.Key)
-				{
-					case ConsoleKey.Enter:
-						Value = !Value;
-						break;
+				case ConsoleKey.Enter:
+					Value = !Value;
+					break;
 
-					default:
-						return false;
-				}
+				default:
+					return false;
 			}
 			return true;
 		}

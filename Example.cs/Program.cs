@@ -1,4 +1,6 @@
 ﻿using MyGUI;
+using System;
+using System.Collections.Generic;
 using Console = System.Console;
 using MyGUIConsole = MyGUI.Session.Console;
 
@@ -16,12 +18,16 @@ namespace Example
 				)
 			);
 #elif false
-			Console.WriteLine("The best language in the world:");
-			MyGUIConsole.Prompt(
-				new CheckBox("C#"),
-				new CheckBox("PHP"),
-				new CheckBox(1,17, false, "Not Javascript")
+			var tb = new TextBox(15, "tb", "");
+			var btn = new Button(3, 30, "btn", "Press me",
+				() =>
+				{
+					var cb = new CheckBox(tb.Value);
+					MyGUIConsole.Prompt(cb);
+				}
 			);
+			tb.OnValueChanged += s => btn.LabelComponent.Value = s;
+			MyGUIConsole.Prompt(tb,btn);
 			MyGUIConsole.Execute();
 #elif true
 			Console.WriteLine("The best language in the world:");

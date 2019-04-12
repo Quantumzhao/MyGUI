@@ -1,52 +1,52 @@
-﻿using System;
-using MyGUI.Session;
+﻿using MyGUI.Session;
 using MyGUI.Utilities;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MyGUI
 {
-	public class LogicGroup : Container<PrimitiveComponent>
-	{
-		public LogicGroup(params PrimitiveComponent[] components)
-		{
-			foreach (var item in components)
-			{
-				item.SetParent(this);
-			}
-			Collection.AddRange(components);
+    public class LogicGroup<V> : Group<PrimitiveComponentWithValue<V>>, IValue<IEnumerable<V>>
+    {
+        public IEnumerable<V> Value
+        {
+            get => Collection.Select(c => c.Value);
+        }
 
-			Resources.ActiveEntities.Add(this);
+        public LogicGroup(params PrimitiveComponentWithValue<V>[] components)
+        {
+            foreach (var item in components)
+            {
+                item.SetParent(this);
+                //item.OnValueChanged += OnElementChanged;
+            }
+            Collection.AddRange(components);
 
-			if (components[0] is RadioButton)
-			{
-				OnElementChange = collection =>
-				{
-					collection.ForEach(c => (c as RadioButton).Value = false);
-					return true;
-				};
-			}
-		}
+            Resources.ActiveEntities.Add(this);
+        }
 
-		public event Func<AbstractCollection<PrimitiveComponent>, bool> OnElementChange;
+        public event Action<IEnumerable<V>> OnValueChanged;
 
-		public override Pixel[,] GetRenderBuffer()
-		{
-			throw new NotImplementedException();
-		}
+        public event Action<PrimitiveComponentWithValue<V>, V> OnElementChanged;
 
-		public override bool ParseAndExecute(ConsoleKeyInfo key)
-		{
-			throw new NotImplementedException();
-		}
+        public override Pixel[,] GetRenderBuffer()
+        {
+            throw new NotImplementedException();
+        }
 
-		public override void UpdateRenderBuffer()
-		{
-			throw new NotImplementedException();
-		}
+        public override bool ParseAndExecute(ConsoleKeyInfo key)
+        {
+            throw new NotImplementedException();
+        }
 
-		public void UpdateComponentList<T>() where T : PrimitiveComponent
-		{
+        public override void UpdateRenderBuffer()
+        {
+            throw new NotImplementedException();
+        }
 
-		}
-	}
+        public void UpdateComponentList<T>() where T : PrimitiveComponent
+        {
+
+        }
+    }
 }

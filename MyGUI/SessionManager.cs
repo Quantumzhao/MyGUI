@@ -19,12 +19,13 @@ namespace MyGUI.Session
 		// This filed is used to trigger the static constructor
 		internal static bool isInitialized = false;
 
-		internal static ConsoleColor DefaultSystemConsoleBackgroundColor = SConsole.BackgroundColor;
-		internal static ConsoleColor DefaultSystemConsoleForegroundColor = SConsole.ForegroundColor;
-		internal static MyPoint SystemConsoleCursorPosition = new MyPoint(SConsole.CursorLeft, SConsole.CursorTop);
+		internal static IOutput Output = new ConsoleOutput();
+		internal static ConsoleColor DefaultSystemConsoleBackgroundColor = Output.BackgroundColor;
+		internal static ConsoleColor DefaultSystemConsoleForegroundColor = Output.ForegroundColor;
+		internal static MyPoint SystemConsoleCursorPosition = new MyPoint(Output.CursorLeft, Output.CursorTop);
 
 		internal static AbstractCollection<IEntity> ActiveEntities { get; set; } = new AbstractCollection<IEntity>();
-		
+
 		public static string ReturnValueCache { get; internal set; } = null;
 		public static IEnumerable<string> ReturnValueListCache { get; internal set; } = null;
 
@@ -42,14 +43,14 @@ namespace MyGUI.Session
 	{
 		private static JsonHelper jsonHelper = null;
 		static Settings()
-		{			
+		{
 			try
 			{
 				jsonHelper = new JsonHelper("config.json");
 			}
-			catch 
+			catch
 			{
-				
+
 			}
 		}
 
@@ -111,11 +112,13 @@ namespace MyGUI.Session
 		static Console()
 		{
 			Resources.isInitialized = true;
-			tempAnchor = new MyPoint(0, SConsole.CursorTop + 1);
+			tempAnchor = new MyPoint(0,Resources.Output.CursorTop + 1);
 		}
 
 		internal static MyPoint tempAnchor;
 		private static List<MyPoint> updateChunk = new List<MyPoint>();
+
+		private static bool isExit = false;
 
 		// Uncapsulated version of "Prompt"
 		public static void Load(PrimitiveComponent component)
@@ -127,10 +130,13 @@ namespace MyGUI.Session
 
 		}
 
+		public static void ExitInteraction() => isExit = true;
+
 		public static void Prompt(params IEntity[] entities)
 		{
 			Resources.ActiveEntities.AddRange(
-				entities.Select(e => {
+				entities.Select(e =>
+				{
 					e.Anchor = tempAnchor;
 					tempAnchor = new MyPoint(tempAnchor.X, tempAnchor.Y + e.Height);
 					return e;
@@ -139,7 +145,7 @@ namespace MyGUI.Session
 			Resources.SystemConsoleCursorPosition = tempAnchor;
 			Resources.ActiveEntities.SetFocusStatus(0, Focus.Selected);
 
-			SConsole.OutputEncoding = Encoding.UTF8;
+			Resources.Output.OutputEncoding = Encoding.UTF8;
 			Renderer.Render();
 		}
 		public static void Prompt(MyPoint anchor, IEntity entity)
@@ -158,14 +164,14 @@ namespace MyGUI.Session
 		}
 		private static void initialize()
 		{
-			SConsole.CursorVisible = false;
+			Resources.Output.CursorVisible = false;
 		}
 		private static void finalize()
 		{
-			SConsole.CursorVisible = true;
-			SConsole.ForegroundColor = Resources.DefaultSystemConsoleForegroundColor;
-			SConsole.BackgroundColor = Resources.DefaultSystemConsoleBackgroundColor;
-			SConsole.SetCursorPosition(0, tempAnchor.Y);
+			Resources.Output.CursorVisible = true;
+			Resources.Output.ForegroundColor = Resources.DefaultSystemConsoleForegroundColor;
+			Resources.Output.BackgroundColor = Resources.DefaultSystemConsoleBackgroundColor;
+			Resources.Output.SetCursorPosition(0, tempAnchor.Y);
 		}
 
 		private static void Main()
@@ -181,6 +187,7 @@ namespace MyGUI.Session
 		private static void SelectEntity(int posReletiveToPointer)
 		{
 			var e = Resources.ActiveEntities;
+			e.SetFocusStatus(e.Pointer, Focus.NoFocus);
 			e.Pointer += posReletiveToPointer;
 			e.SetFocusStatus(e.Pointer, Focus.Selected);
 		}
@@ -201,19 +208,25 @@ namespace MyGUI.Session
 
 		private static bool ExecuteConsoleKey()
 		{
-			SConsole.SetCursorPosition(SConsole.BufferWidth - 1, 0);
-			SConsole.ForegroundColor = Resources.DefaultSystemConsoleBackgroundColor;
-			SConsole.BackgroundColor = Resources.DefaultSystemConsoleBackgroundColor;
+			if (isExit)
+			{
+				isExit = false;
+				return false;
+			}
 
-			ConsoleKeyInfo key = SConsole.ReadKey();
+			Resources.Output.SetCursorPosition(Resources.Output.BufferWidth - 1, 0);
+			Resources.Output.ForegroundColor = Resources.DefaultSystemConsoleBackgroundColor;
+			Resources.Output.BackgroundColor = Resources.DefaultSystemConsoleBackgroundColor;
 
-			SConsole.ForegroundColor = Resources.DefaultSystemConsoleForegroundColor;
-			SConsole.SetCursorPosition(
-				Resources.SystemConsoleCursorPosition.X, 
+			ConsoleKeyInfo key = Resources.Output.ReadKey();
+
+			Resources.Output.ForegroundColor = Resources.DefaultSystemConsoleForegroundColor;
+			Resources.Output.SetCursorPosition(
+				Resources.SystemConsoleCursorPosition.X,
 				Resources.SystemConsoleCursorPosition.Y
 			);
 
-			var entity = Resources.ActiveEntities.Get(Focus.Focusing);
+			var entity = Resources.ActiveEntities.Get(Focus.Focusing, Focus.Focused);
 			if (entity == null || !entity.ParseAndExecute(key))
 			{
 				switch (key.Key)
@@ -256,53 +269,21 @@ namespace MyGUI.Session
 					{
 						for (int i = 0; i < ps.GetLength(0); i++)
 						{
-							SConsole.SetCursorPosition(i + e[k].Anchor.X, j + e[k].Anchor.Y);
-							SConsole.ForegroundColor = ps[i, j].ForegroundColor;
-							SConsole.BackgroundColor = ps[i, j].BackgroundColor;
-							SConsole.Write(ps[i, j].Character);
-						}
-					}
-				}
-			}
-			private static void RenderPartially()
-			{
-				AbstractCollection<IEntity> entityList = Resources.ActiveEntities;
-				for (int i = 0; i < entityList.Count; i++)
-				{
-					IEntity e = entityList[i];
-					updateChunk.AddRange(
-						e.UpdateChunks.Select(
-							p => new MyPoint(
-								p.X + e.Anchor.X,
-								p.Y + e.Anchor.Y
-							)
-						)
-					);
-				}
-
-				Pixel[] updatePixelBuffer = new Pixel[updateChunk.Count];
-				for (int i = 0; i < updateChunk.Count; i++)
-				{
-					MyPoint p = updateChunk[i];
-					AbstractCollection<IEntity> e = Resources.ActiveEntities;
-					for (int j = 0; j < e.Count; j++)
-					{
-						if (p.X >= e[i].Anchor.X && p.X < e[i].Width + e[i].Anchor.X &&
-							p.Y >= e[i].Anchor.Y && p.Y < e[i].Height + e[i].Anchor.Y)
-						{
-							//updatePixelBuffer[i] =
+							Resources.Output.SetCursorPosition(i + e[k].Anchor.X, j + e[k].Anchor.Y);
+							Resources.Output.ForegroundColor = ps[i, j].ForegroundColor;
+							Resources.Output.BackgroundColor = ps[i, j].BackgroundColor;
+							Resources.Output.Write(ps[i, j].Character);
 						}
 					}
 				}
 			}
 		}
-		
+
 		internal static class Parser
 		{
 			public static List<object> Parse()
 			{
-				List<object> result;
-				if (tryLiteralString(out result)) return result;
+				if (tryLiteralString(out List<object> result)) return result;
 				else if (tryShellCommand(out result)) return result;
 				else if (tryCSharpScript(out result)) return result;
 				else throw new InvalidOperationException("Please Check Your Command");
@@ -354,5 +335,65 @@ namespace MyGUI.Session
 				throw new NotImplementedException();
 			}
 		}
+	}
+
+	public interface IOutput
+	{
+		ConsoleColor ForegroundColor { get; set; }
+		ConsoleColor BackgroundColor { get; set; }
+		Encoding OutputEncoding { get; set; }
+		int CursorTop { get; set; }
+		int CursorLeft { get; set; }
+		bool CursorVisible { get; set; }
+		int BufferWidth { get; set; }
+		void SetCursorPosition(int left, int top);
+		void Write(char input);
+		void WriteLine();
+		void Clear();
+		ConsoleKeyInfo ReadKey();
+	}
+
+	public class ConsoleOutput : IOutput
+	{
+		public ConsoleColor ForegroundColor
+		{
+			get => SConsole.ForegroundColor;
+			set => SConsole.ForegroundColor = value;
+		}
+		public ConsoleColor BackgroundColor
+		{
+			get => SConsole.BackgroundColor;
+			set => SConsole.BackgroundColor = value;
+		}
+		public int CursorTop
+		{
+			get => SConsole.CursorTop;
+			set => SConsole.CursorTop = value;
+		}
+		public int CursorLeft
+		{
+			get => SConsole.CursorLeft;
+			set => SConsole.CursorLeft = value;
+		}
+		public Encoding OutputEncoding
+		{
+			get => SConsole.OutputEncoding;
+			set => SConsole.OutputEncoding = value;
+		}
+		public int BufferWidth
+		{
+			get => SConsole.BufferWidth;
+			set => SConsole.BufferWidth = value;
+		}
+		public bool CursorVisible
+		{
+			get => SConsole.CursorVisible;
+			set => SConsole.CursorVisible = value;
+		}
+		public void SetCursorPosition(int left, int top) => SConsole.SetCursorPosition(left, top);
+		public void Write(char input) => SConsole.Write(input);
+		public void WriteLine() => SConsole.WriteLine();
+		public void Clear() => SConsole.Clear();
+		public ConsoleKeyInfo ReadKey() => SConsole.ReadKey();
 	}
 }

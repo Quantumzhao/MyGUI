@@ -12,7 +12,7 @@ using static MyGUI.Session.Resources;
 
 namespace MyGUI
 {
-	public class ListBox : Container<ListItem>
+	public class ListBox : Group<ListItem>
 	{
 		#region Methods of Instantiating ComboBox
 		public ListBox(int height, int width, params ListItem[] items)
@@ -125,18 +125,20 @@ namespace MyGUI
 		}
 		#endregion
 
-		private class DisplayArea : AbstractDisplayArea
+		private class DisplayArea
 		{
 			public DisplayArea(int height, int width, ListBox parent) : base()
 			{
 				Height = height;
 				Width = width;
-				SetParent(parent);
-				UnboxedParent = GetParent<ListBox>();
+				//SetParent(parent);
+				//UnboxedParent = GetParent<ListBox>();
 				initRenderBuffer();
 			}
 
 			public List<Point> updateChunk = new List<Point>();
+			public int Height { get; set; }
+			public int Width { get; set; }
 			public string Value { get ; set; }
 			private Pixel[,] renderBuffer;
 			private ListBox UnboxedParent;
@@ -152,12 +154,12 @@ namespace MyGUI
 				UnboxedParent.Collection.SetFocusStatus(UnboxedParent.Collection.Pointer, Focus.Selected);
 			}
 
-			public override void MoveUp()
+			public void MoveUp()
 			{
 
 			}
 
-			public override void MoveDown()
+			public void MoveDown()
 			{
 
 			}
@@ -179,13 +181,13 @@ namespace MyGUI
 				}
 				UpdateRenderBuffer();
 			}
-			public override Pixel[,] GetRenderBuffer() => renderBuffer;
-			public override void UpdateRenderBuffer()
+			public Pixel[,] GetRenderBuffer() => renderBuffer;
+			public void UpdateRenderBuffer()
 			{
 				
 			}
 
-			public override bool ParseAndExecute(ConsoleKeyInfo key)
+			public bool ParseAndExecute(ConsoleKeyInfo key)
 			{
 				switch (key.Key)
 				{

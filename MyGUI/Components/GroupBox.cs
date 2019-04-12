@@ -6,7 +6,7 @@ using MyGUI.Utilities;
 
 namespace MyGUI
 {
-	class GroupBox : Container<PrimitiveComponent>
+	class GroupBox : Group<PrimitiveComponent>
 	{
 		public override Pixel[,] GetRenderBuffer()
 		{

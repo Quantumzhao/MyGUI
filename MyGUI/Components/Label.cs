@@ -10,9 +10,11 @@ namespace MyGUI
 			Height = height;
 			Width = width;
 			SetParent(parent);
-			Value = caption;
+			value = caption;
 			Name = name ?? caption;
 			initRenderBuffer();
+			OnValueChanged += s => UpdateRenderBuffer();
+			OnValueChanged += s => parent?.UpdateRenderBuffer();
 		}
 		public Label(string caption, IEntity parent = null)
 			: this(DefaultHeight, DefaultWidth, parent, caption, caption) { }
@@ -107,7 +109,11 @@ namespace MyGUI
 					renderBuffer[i, 0].Character = '.';
 				}
 			}
-			parent.UpdateChunks.AddRange(UpdateChunks);
+		}
+
+		public override bool ParseAndExecute(ConsoleKeyInfo key)
+		{
+			return false;
 		}
 	}
 }

@@ -14,12 +14,26 @@ namespace MyGUI
 			{
 				if (this.value != value)
 				{
-					this.value = value;
 					OnValueChanged?.Invoke(value);
+					this.value = value;
 				}
 			}
 		}
 
+		public RadioButton()
+		{
+			if (parent is LogicGroup<bool> p)
+			{
+				p.OnElementChanged += (PrimitiveComponentWithValue<bool> c, bool v) =>
+				{
+					if (v)
+					{
+						p.Collection.ForEach(e => e.Value = false);
+						c.Value = true;
+					}
+				};
+			}
+		}
 
 		private Pixel[,] renderBuffer;
 		public override Pixel[,] GetRenderBuffer()
@@ -45,17 +59,14 @@ namespace MyGUI
 
 		public override bool ParseAndExecute(ConsoleKeyInfo key)
 		{
-			if (!base.ParseAndExecute(key))
+			switch (key.Key)
 			{
-				switch (key.Key)
-				{
-					case ConsoleKey.Enter:
-						Value = true;
-						break;
+				case ConsoleKey.Enter:
+					Value = true;
+					break;
 
-					default:
-						return false;
-				}
+				default:
+					return false;
 			}
 			return true;
 		}

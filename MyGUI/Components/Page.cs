@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using MyGUI;
+using MyGUI.Components;
 using MyGUI.Utilities;
 
-namespace MyGUI
+namespace MyGUI.Components
 {
-	public class ComboBox : Group<ListItem>
+	public class Page : ComponentComplex
 	{
-		public override bool ParseAndExecute(ConsoleKeyInfo key)
+		public override Pixel[,] GetRenderBuffer()
 		{
 			throw new NotImplementedException();
 		}
 
-		public override Pixel[,] GetRenderBuffer()
+		public override bool ParseAndExecute(ConsoleKeyInfo key)
 		{
 			throw new NotImplementedException();
 		}

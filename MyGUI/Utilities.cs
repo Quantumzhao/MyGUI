@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MyGUI.Utilities
 {
-	public interface IEntity : IKeyEvent, INameable, IFocusable, IVisible, IDisposable
+	public interface IEntity : IKeyEvent, INameable, IFocusable, IVisible
 	{
 		Point Anchor { get; set; }
 		int Width { get; }
@@ -28,24 +28,23 @@ namespace MyGUI.Utilities
 
 	public interface IVisible
 	{
-		List<Point> UpdateChunks { get; set; }
 		Pixel[,] GetRenderBuffer();
 		void UpdateRenderBuffer();
 	}
 
 	public interface IValue<T>
 	{
-		T Value { get; set; }
+		T Value { get;}
 		event Action<T> OnValueChanged;
 	}
 
-	public enum Focus
+    public enum Focus
 	{
 		Focusing,
 		Focused,
-		NoFocus,
+        NoFocus,
 		Selected
-	}
+    }
 }
 
 namespace MyGUI
@@ -60,5 +59,6 @@ namespace MyGUI
 		{
 			return (T)Session.Resources.ActiveEntities[index];
 		}
+		public static void ExitInteraction() => Session.Console.ExitInteraction();
 	}
 }
